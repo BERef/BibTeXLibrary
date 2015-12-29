@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BibTeXLibrary", "BibTeXLibrary\BibTeXLibrary.csproj", "{E453FF0B-97B0-4575-9A2E-B15DCBF7C47F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest", "UnitTest\UnitTest.csproj", "{53115C09-7A3C-48CD-98AF-06668FC3E6EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{E453FF0B-97B0-4575-9A2E-B15DCBF7C47F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E453FF0B-97B0-4575-9A2E-B15DCBF7C47F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E453FF0B-97B0-4575-9A2E-B15DCBF7C47F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53115C09-7A3C-48CD-98AF-06668FC3E6EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53115C09-7A3C-48CD-98AF-06668FC3E6EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53115C09-7A3C-48CD-98AF-06668FC3E6EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53115C09-7A3C-48CD-98AF-06668FC3E6EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
