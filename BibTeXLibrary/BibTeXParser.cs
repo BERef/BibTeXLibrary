@@ -18,7 +18,11 @@ namespace BibTeXLibrary
         /// Input text stream.
         /// </summary>
         private readonly TextReader _inputText;
-        
+
+        /// <summary>
+        /// Line No counter
+        /// </summary>
+        private int _lineCount = 1;
         #endregion
 
         #region Constructor
@@ -40,8 +44,9 @@ namespace BibTeXLibrary
         {
             int code;
             char c;
+            int braceCount = 0;
 
-            while ((code = _inputText.Peek()) != -1)
+            while ((code = Peek()) != -1)
             {
                 c = (char)code;
 
@@ -55,34 +60,57 @@ namespace BibTeXLibrary
                     
                     while(true)
                     {
-                        c = (char)_inputText.Read();
+                        c = (char)Read();
                         value.Append(c);
 
-                        if ((code = _inputText.Peek()) == -1) break;
+                        if ((code = Peek()) == -1) break;
                         c = (char)code;
 
                         if (!char.IsLetterOrDigit(c)) break;
                     }
                     new Token(TokenType.String, value.ToString());
+                    goto ContinueExcute;
                 }
                 else if (c == '"')
                 {
-                    _inputText.Read();
-                    
                     StringBuilder value = new StringBuilder();
-                    
-                    while((code = _inputText.Peek()) != -1)
+
+                    _inputText.Read();
+                    while((code = Peek()) != -1)
                     {
-                        c = (char)_inputText.Read();
+                        c = (char)Read();
                         if (c == '"') break;
 
                         value.Append(c);
                     }
                     new Token(TokenType.String, value.ToString());
+                    goto ContinueExcute;
                 }
                 else if (c == '{')
                 {
-                    new Token(TokenType.LeftBrace);
+                    if (braceCount++ == 0)
+                    {
+                        new Token(TokenType.LeftBrace);
+                    }
+                    else
+                    {
+                        StringBuilder value = new StringBuilder();
+
+                        Read();
+                        while (braceCount > 1 && (code = Peek()) != -1)
+                        {
+                            c = (char)Read();
+                            if (c == '{') braceCount++;
+                            else if (c == '}') braceCount--;
+                            if (braceCount > 1) value.Append(c);
+                        }
+                        if(braceCount > 1)
+                        {
+                            //TODO: need throw an exception
+                        }
+                        new Token(TokenType.String, value.ToString());
+                        goto ContinueExcute;
+                    }
                 }
                 else if (c == '}')
                 {
@@ -96,13 +124,44 @@ namespace BibTeXLibrary
                 {
                     new Token(TokenType.Concatenation);
                 }
+                else if (c == '=')
+                {
+                    new Token(TokenType.Equal);
+                }
+                else if (c == '\n')
+                {
+                    _lineCount++;
+                }
                 else if (!char.IsWhiteSpace(c))
                 {
                     //TODO: need throw an exception
                 }
-                // Move to next char
-                _inputText.Read();
+
+                // Move to next char if possible
+                if(_inputText.Peek() != -1)
+                    _inputText.Read();
+
+            // Don't move
+            ContinueExcute: continue;
             }
+        }
+
+        /// <summary>
+        /// Peek next char but not move forward.
+        /// </summary>
+        /// <returns></returns>
+        private int Peek()
+        {
+            return _inputText.Peek();
+        }
+
+        /// <summary>
+        /// Read next char and move forward.
+        /// </summary>
+        /// <returns></returns>
+        private int Read()
+        {
+            return _inputText.Read();
         }
         #endregion
 
