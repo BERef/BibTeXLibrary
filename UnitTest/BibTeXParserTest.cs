@@ -12,7 +12,8 @@ namespace UnitTest
         [TestMethod]
         public void TestMethod1()
         {
-            var parser = new BibTeXParser(new StringReader("@{keyword, title = {123}, year = \"2012\""));
+            var parser = new BibTeXParser(
+                new StringReader("@article{keyword, title = {\"0\"{123}456{789}}, year = \"2012\"}"));
             parser.GetResult();
         }
     }
