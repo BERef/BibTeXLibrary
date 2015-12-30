@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace BibTeXLibrary
 {
-    public class BibTeXParser : IDisposable
+    public class BibParser : IDisposable
     {
-        #region Const field
+        #region Const Field
 
         #endregion
 
-        #region Private field
+        #region Private Field
         /// <summary>
         /// Input text stream.
         /// </summary>
@@ -26,20 +26,20 @@ namespace BibTeXLibrary
         #endregion
 
         #region Constructor
-        public BibTeXParser(TextReader inputText)
+        public BibParser(TextReader inputText)
         {
             _inputText = inputText;
         }
         #endregion
 
-        #region Public method
+        #region Public Method
         public void GetResult()
         {
             Parser();
         }
         #endregion
 
-        #region Private method
+        #region Private Method
         private void Parser()
         {
             int code;
@@ -165,7 +165,7 @@ namespace BibTeXLibrary
         }
         #endregion
 
-        #region Impement interface "IDisposable"
+        #region Impement Interface "IDisposable"
         /// <summary>
         /// Dispose stream resource.
         /// </summary>
