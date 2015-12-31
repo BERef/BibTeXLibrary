@@ -20,7 +20,7 @@ namespace BibTeXLibrary
         private readonly TextReader _inputText;
 
         /// <summary>
-        /// Line No counter
+        /// Line No. counter
         /// </summary>
         private int _lineCount = 1;
         #endregion
@@ -42,6 +42,14 @@ namespace BibTeXLibrary
         #region Private Method
         private void Parser()
         {
+            foreach(var token in Lexer())
+            {
+                var bib = new BibEntry();
+            }
+        }
+
+        private IEnumerable<Token> Lexer()
+        {
             int code;
             char c;
             int braceCount = 0;
@@ -52,13 +60,13 @@ namespace BibTeXLibrary
 
                 if (c == '@')
                 {
-                    new Token(TokenType.Start);
+                    yield return new Token(TokenType.Start);
                 }
-                else if (char.IsLetterOrDigit(c))
+                else if (char.IsLetter(c))
                 {
                     StringBuilder value = new StringBuilder();
-                    
-                    while(true)
+
+                    while (true)
                     {
                         c = (char)Read();
                         value.Append(c);
@@ -68,7 +76,24 @@ namespace BibTeXLibrary
 
                         if (!char.IsLetterOrDigit(c)) break;
                     }
-                    new Token(TokenType.String, value.ToString());
+                    yield return new Token(TokenType.Name, value.ToString());
+                    goto ContinueExcute;
+                }
+                else if (char.IsDigit(c))
+                {
+                    StringBuilder value = new StringBuilder();
+
+                    while (true)
+                    {
+                        c = (char)Read();
+                        value.Append(c);
+
+                        if ((code = Peek()) == -1) break;
+                        c = (char)code;
+
+                        if (!char.IsDigit(c)) break;
+                    }
+                    yield return new Token(TokenType.String, value.ToString());
                     goto ContinueExcute;
                 }
                 else if (c == '"')
@@ -76,21 +101,22 @@ namespace BibTeXLibrary
                     StringBuilder value = new StringBuilder();
 
                     _inputText.Read();
-                    while((code = Peek()) != -1)
+                    while ((code = Peek()) != -1)
                     {
-                        c = (char)Read();
-                        if (c == '"') break;
+                        //c = (char)Read();
+                        if (c != '\\' && code == '"') break;
 
+                        c = (char)Read();
                         value.Append(c);
+                        
                     }
-                    new Token(TokenType.String, value.ToString());
-                    goto ContinueExcute;
+                    yield return new Token(TokenType.String, value.ToString());
                 }
                 else if (c == '{')
                 {
                     if (braceCount++ == 0)
                     {
-                        new Token(TokenType.LeftBrace);
+                        yield return new Token(TokenType.LeftBrace);
                     }
                     else
                     {
@@ -104,29 +130,29 @@ namespace BibTeXLibrary
                             else if (c == '}') braceCount--;
                             if (braceCount > 1) value.Append(c);
                         }
-                        if(braceCount > 1)
+                        if (braceCount > 1)
                         {
                             //TODO: need throw an exception
                         }
-                        new Token(TokenType.String, value.ToString());
+                        yield return new Token(TokenType.String, value.ToString());
                         goto ContinueExcute;
                     }
                 }
                 else if (c == '}')
                 {
-                    new Token(TokenType.RightBrace);
+                    yield return new Token(TokenType.RightBrace);
                 }
                 else if (c == ',')
                 {
-                    new Token(TokenType.Comma);
+                    yield return new Token(TokenType.Comma);
                 }
                 else if (c == '#')
                 {
-                    new Token(TokenType.Concatenation);
+                    yield return new Token(TokenType.Concatenation);
                 }
                 else if (c == '=')
                 {
-                    new Token(TokenType.Equal);
+                    yield return new Token(TokenType.Equal);
                 }
                 else if (c == '\n')
                 {
@@ -138,11 +164,11 @@ namespace BibTeXLibrary
                 }
 
                 // Move to next char if possible
-                if(_inputText.Peek() != -1)
+                if (_inputText.Peek() != -1)
                     _inputText.Read();
 
-            // Don't move
-            ContinueExcute: continue;
+                // Don't move
+                ContinueExcute: continue;
             }
         }
 
