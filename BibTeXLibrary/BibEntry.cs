@@ -13,6 +13,11 @@ namespace BibTeXLibrary
 
         #region Private Field
         /// <summary>
+        /// Entry's type
+        /// </summary>
+        private EntryType _type;
+
+        /// <summary>
         /// Store all tags.
         /// </summary>
         private Dictionary<string, string> _tags = new Dictionary<string, string>();
@@ -131,11 +136,6 @@ namespace BibTeXLibrary
             get { return this["title"]; }
         }
 
-        public string Type
-        {
-            get { return this["type"]; }
-        }
-
         public string Volume
         {
             get { return this["volume"]; }
@@ -144,6 +144,18 @@ namespace BibTeXLibrary
         public string Year
         {
             get { return this["year"]; }
+        }
+
+        public string Type
+        {
+            get
+            {
+                return Enum.GetName(typeof(EntryType), _type);
+            }
+            set
+            {
+                _type = (EntryType)Enum.Parse(typeof(EntryType), value, true);
+            }
         }
         #endregion
 
@@ -174,5 +186,23 @@ namespace BibTeXLibrary
         #region Private Method
 
         #endregion
+    }
+
+    public enum EntryType
+    {
+        Article,
+        Book,
+        Booklet,
+        Conference,
+        InBook,
+        InCollection,
+        InProceedings,
+        Manual,
+        Mastersthesis,
+        Misc,
+        PhDThesis,
+        Proceedings,
+        TechReport,
+        Unpublished
     }
 }
