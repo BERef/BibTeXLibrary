@@ -86,11 +86,6 @@ namespace BibTeXLibrary
             get { return this["journal"]; }
         }
 
-        public string Key
-        {
-            get { return this["key"]; }
-        }
-
         public string Mouth
         {
             get { return this["mouth"]; }
@@ -156,6 +151,12 @@ namespace BibTeXLibrary
             {
                 _type = (EntryType)Enum.Parse(typeof(EntryType), value, true);
             }
+        }
+
+        public string Key
+        {
+            get { return this["key"]; }
+            set { this["Key"] = value; }
         }
         #endregion
 
