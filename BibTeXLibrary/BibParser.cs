@@ -45,16 +45,16 @@ namespace BibTeXLibrary
             int curState = 0;
             BibEntry bib = null;
 
+            string tagName = "";
+
             foreach (var token in Lexer())
             {
-                
-
                 switch(curState)
                 {
                     case 0:
                         if(token.Type == TokenType.Start)
                         {
-                            curState++;
+                            curState = 1;
                             bib = new BibEntry();
                         }
                         break;
@@ -62,8 +62,93 @@ namespace BibTeXLibrary
                     case 1:
                         if(token.Type == TokenType.Name)
                         {
-                            curState++;
+                            curState = 2;
                             bib.Type = token.Value;
+                        }
+                        break;
+
+                    case 2:
+                        if (token.Type == TokenType.LeftBrace)
+                        {
+                            curState = 3;
+                        }
+                        break;
+
+                    case 3:
+                        if (token.Type == TokenType.Name)
+                        {
+                            curState++;
+                            bib.Key = token.Value;
+                        }
+                        else if(token.Type == TokenType.Comma)
+                        {
+                            curState = 5;
+                        }
+                        break;
+
+                    case 4:
+                        if (token.Type == TokenType.Comma)
+                        {
+                            curState = 5;
+                        }
+                        break;
+
+                    case 5:
+                        if (token.Type == TokenType.Name)
+                        {
+                            curState = 6;
+                            tagName = token.Value;
+                            bib[tagName] = "";
+                        }
+                        break;
+
+                    case 6:
+                        if (token.Type == TokenType.Equal)
+                        {
+                            curState = 7;
+                        }
+                        break;
+
+                    case 7:
+                        if (token.Type == TokenType.String)
+                        {
+                            curState = 8;
+                            bib[tagName] += token.Value;
+                        }
+                        break;
+
+                    case 8:
+                        if (token.Type == TokenType.Concatenation)
+                        {
+                            curState = 7;
+                        }
+                        else if(token.Type == TokenType.Comma)
+                        {
+                            curState = 9;
+                        }
+                        else if(token.Type == TokenType.RightBrace)
+                        {
+                            curState = 10;
+                            // Add to result list
+                        }
+                        break;
+
+                    case 9:
+                        if (token.Type == TokenType.String)
+                        {
+                            curState = 8;
+                            bib[tagName] += token.Value;
+                        }
+                        else if(token.Type == TokenType.RightBrace)
+                        {
+                            curState = 10;
+                        }
+                        break;
+
+                    case 10:
+                        if (token.Type == TokenType.Start)
+                        {
+                            curState = 1;
                         }
                         break;
                 }
