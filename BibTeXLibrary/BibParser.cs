@@ -42,12 +42,38 @@ namespace BibTeXLibrary
         #region Private Method
         private void Parser()
         {
-            foreach(var token in Lexer())
+            int curState = 0;
+            BibEntry bib = null;
+
+            foreach (var token in Lexer())
             {
-                var bib = new BibEntry();
+                
+
+                switch(curState)
+                {
+                    case 0:
+                        if(token.Type == TokenType.Start)
+                        {
+                            curState++;
+                            bib = new BibEntry();
+                        }
+                        break;
+
+                    case 1:
+                        if(token.Type == TokenType.Name)
+                        {
+                            curState++;
+                            bib.Type = token.Value;
+                        }
+                        break;
+                }
             }
         }
 
+        /// <summary>
+        /// Lexer for BibTeX entry.
+        /// </summary>
+        /// <returns></returns>
         private IEnumerable<Token> Lexer()
         {
             int code;
@@ -103,7 +129,6 @@ namespace BibTeXLibrary
                     _inputText.Read();
                     while ((code = Peek()) != -1)
                     {
-                        //c = (char)Read();
                         if (c != '\\' && code == '"') break;
 
                         c = (char)Read();
@@ -200,5 +225,6 @@ namespace BibTeXLibrary
             _inputText.Dispose();
         }
         #endregion
+        
     }
 }
