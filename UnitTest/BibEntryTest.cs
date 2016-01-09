@@ -29,5 +29,24 @@ namespace UnitTest
 
             Assert.AreEqual(title, entry.Title);
         }
+
+        [TestMethod]
+        public void TestSetType()
+        {
+            var entry = new BibEntry();
+            entry.Type = "inbook";
+            Assert.AreEqual("InBook", entry.Type);
+
+            entry.Type = "inBoOK";
+            Assert.AreEqual("InBook", entry.Type);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TestSetTypeWithInvalidValue()
+        {
+            var entry = new BibEntry();
+            entry.Type = "inbookK";
+        }
     }
 }
