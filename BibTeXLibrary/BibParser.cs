@@ -45,6 +45,7 @@ namespace BibTeXLibrary
             ParserState curState = ParserState.Begin;
             BibEntry bib = null;
 
+            StringBuilder tagValueBuilder = new StringBuilder();
             string tagName = "";
 
             foreach (var token in Lexer())
@@ -113,7 +114,7 @@ namespace BibTeXLibrary
                         if (token.Type == TokenType.String)
                         {
                             curState = ParserState.OutTagValue;
-                            bib[tagName] += token.Value;
+                            tagValueBuilder.Append(token.Value);
                         }
                         break;
 
@@ -122,13 +123,18 @@ namespace BibTeXLibrary
                         {
                             curState = ParserState.InTagValue;
                         }
-                        else if(token.Type == TokenType.Comma)
+                        else 
+                        if(token.Type == TokenType.Comma)
                         {
                             curState = ParserState.InTagName;
+                            bib[tagName] = tagValueBuilder.ToString();
+                            tagValueBuilder.Clear();
                         }
                         else if(token.Type == TokenType.RightBrace)
                         {
                             curState = ParserState.OutEntry;
+                            bib[tagName] = tagValueBuilder.ToString();
+                            tagValueBuilder.Clear();
                             // Add to result list
                         }
                         break;
