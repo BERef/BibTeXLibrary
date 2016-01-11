@@ -7,10 +7,42 @@ using System.Threading.Tasks;
 
 namespace BibTeXLibrary
 {
+    using Next = Dictionary<TokenType, ParserState>;
+    using StateMap = Dictionary<ParserState, Dictionary<TokenType, ParserState>>;
+
     public class BibParser : IDisposable
     {
         #region Const Field
-
+        /// <summary>
+        /// State tranfer map
+        /// </summary>
+        private static readonly StateMap _stateMap = new StateMap
+        {
+            {ParserState.Begin, new Next {
+                { TokenType.Start, ParserState.InStart } } },
+            {ParserState.InStart, new Next {
+                { TokenType.Name, ParserState.InEntry } } },
+            {ParserState.InEntry, new Next {
+                { TokenType.LeftBrace, ParserState.InKey } } },
+            {ParserState.InKey, new Next {
+                { TokenType.Name, ParserState.OutKey },
+                { TokenType.Comma, ParserState.InTagName } } },
+            {ParserState.OutKey, new Next {
+                { TokenType.Comma, ParserState.InTagName } } },
+            {ParserState.InTagName, new Next {
+                { TokenType.Name, ParserState.InTagEqual } } },
+            {ParserState.InTagEqual, new Next {
+                { TokenType.Equal, ParserState.InTagValue } } },
+            {ParserState.InTagValue, new Next {
+                { TokenType.String, ParserState.OutTagValue },
+                /*{ TokenType.Name, ParserState.OutTagValue }*/ } },
+            {ParserState.OutTagValue, new Next {
+                { TokenType.Concatenation, ParserState.InTagValue },
+                { TokenType.Comma, ParserState.InTagName },
+                { TokenType.RightBrace, ParserState.OutEntry } } },
+            {ParserState.OutEntry, new Next {
+                { TokenType.Start, ParserState.InStart } } },
+        }; 
         #endregion
 
         #region Private Field
@@ -42,7 +74,8 @@ namespace BibTeXLibrary
         #region Private Method
         private void Parser()
         {
-            ParserState curState = ParserState.Begin;
+            var curState = ParserState.Begin;
+            var nextState = ParserState.Begin;
             BibEntry bib = null;
 
             StringBuilder tagValueBuilder = new StringBuilder();
@@ -50,102 +83,61 @@ namespace BibTeXLibrary
 
             foreach (var token in Lexer())
             {
+                if(_stateMap[curState].ContainsKey(token.Type))
+                {
+                    nextState = _stateMap[curState][token.Type];
+                }
+                else
+                {
+                    //TODO: need to thrown an exception
+                }
                 switch(curState)
                 {
                     case ParserState.Begin:
-                        if(token.Type == TokenType.Start)
+                        if(TryMatch(token, TokenType.Start))
                         {
-                            curState = ParserState.InStart;
                             bib = new BibEntry();
                         }
                         break;
-
-                    case ParserState.InStart:
-                        if(token.Type == TokenType.Name)
-                        {
-                            curState = ParserState.InEntry;
-                            bib.Type = token.Value;
-                        }
-                        break;
-
-                    case ParserState.InEntry:
-                        if (token.Type == TokenType.LeftBrace)
-                        {
-                            curState = ParserState.InKey;
-                        }
-                        break;
-
+                        
                     case ParserState.InKey:
-                        if (token.Type == TokenType.Name)
+                        if (TryMatch(token, TokenType.Name))
                         {
-                            curState = ParserState.OutKey;
                             bib.Key = token.Value;
-                        }
-                        else if(token.Type == TokenType.Comma)
-                        {
-                            curState = ParserState.InTagName;
-                        }
-                        break;
-
-                    case ParserState.OutKey:
-                        if (token.Type == TokenType.Comma)
-                        {
-                            curState = ParserState.InTagName;
                         }
                         break;
 
                     case ParserState.InTagName:
-                        if (token.Type == TokenType.Name)
+                        if (TryMatch(token, TokenType.Name))
                         {
-                            curState = ParserState.InTagEqual;
                             tagName = token.Value;
                             bib[tagName] = "";
                         }
                         break;
 
-                    case ParserState.InTagEqual:
-                        if (token.Type == TokenType.Equal)
-                        {
-                            curState = ParserState.InTagValue;
-                        }
-                        break;
-
                     case ParserState.InTagValue:
-                        if (token.Type == TokenType.String)
+                        if (TryMatch(token, TokenType.String))
                         {
-                            curState = ParserState.OutTagValue;
                             tagValueBuilder.Append(token.Value);
                         }
                         break;
 
                     case ParserState.OutTagValue:
-                        if (token.Type == TokenType.Concatenation)
+                        if(TryMatch(token, TokenType.Comma))
                         {
-                            curState = ParserState.InTagValue;
-                        }
-                        else 
-                        if(token.Type == TokenType.Comma)
-                        {
-                            curState = ParserState.InTagName;
                             bib[tagName] = tagValueBuilder.ToString();
                             tagValueBuilder.Clear();
                         }
-                        else if(token.Type == TokenType.RightBrace)
+                        else if(TryMatch(token, TokenType.RightBrace))
                         {
-                            curState = ParserState.OutEntry;
                             bib[tagName] = tagValueBuilder.ToString();
                             tagValueBuilder.Clear();
                             // Add to result list
                         }
                         break;
-
-                    case ParserState.OutEntry:
-                        if (token.Type == TokenType.Start)
-                        {
-                            curState = ParserState.InStart;
-                        }
-                        break;
                 }
+
+                curState = nextState;
             }
             if(curState != ParserState.OutEntry)
             {
@@ -229,7 +221,6 @@ namespace BibTeXLibrary
                     else
                     {
                         StringBuilder value = new StringBuilder();
-
                         Read();
                         while (braceCount > 1 && (code = Peek()) != -1)
                         {
@@ -296,6 +287,17 @@ namespace BibTeXLibrary
         private int Read()
         {
             return _inputText.Read();
+        }
+
+        /// <summary>
+        /// Try match a token.
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        private bool TryMatch(Token token, TokenType type)
+        {
+            return token.Type == type;
         }
         #endregion
 
