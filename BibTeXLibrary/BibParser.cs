@@ -42,7 +42,7 @@ namespace BibTeXLibrary
         #region Private Method
         private void Parser()
         {
-            int curState = 0;
+            ParserState curState = ParserState.Begin;
             BibEntry bib = null;
 
             string tagName = "";
@@ -51,107 +51,99 @@ namespace BibTeXLibrary
             {
                 switch(curState)
                 {
-                    case 0:
+                    case ParserState.Begin:
                         if(token.Type == TokenType.Start)
                         {
-                            curState = 1;
+                            curState = ParserState.InStart;
                             bib = new BibEntry();
                         }
                         break;
 
-                    case 1:
+                    case ParserState.InStart:
                         if(token.Type == TokenType.Name)
                         {
-                            curState = 2;
+                            curState = ParserState.InEntry;
                             bib.Type = token.Value;
                         }
                         break;
 
-                    case 2:
+                    case ParserState.InEntry:
                         if (token.Type == TokenType.LeftBrace)
                         {
-                            curState = 3;
+                            curState = ParserState.InKey;
                         }
                         break;
 
-                    case 3:
+                    case ParserState.InKey:
                         if (token.Type == TokenType.Name)
                         {
-                            curState++;
+                            curState = ParserState.OutKey;
                             bib.Key = token.Value;
                         }
                         else if(token.Type == TokenType.Comma)
                         {
-                            curState = 5;
+                            curState = ParserState.InTagName;
                         }
                         break;
 
-                    case 4:
+                    case ParserState.OutKey:
                         if (token.Type == TokenType.Comma)
                         {
-                            curState = 5;
+                            curState = ParserState.InTagName;
                         }
                         break;
 
-                    case 5:
+                    case ParserState.InTagName:
                         if (token.Type == TokenType.Name)
                         {
-                            curState = 6;
+                            curState = ParserState.InTagEqual;
                             tagName = token.Value;
                             bib[tagName] = "";
                         }
                         break;
 
-                    case 6:
+                    case ParserState.InTagEqual:
                         if (token.Type == TokenType.Equal)
                         {
-                            curState = 7;
+                            curState = ParserState.InTagValue;
                         }
                         break;
 
-                    case 7:
+                    case ParserState.InTagValue:
                         if (token.Type == TokenType.String)
                         {
-                            curState = 8;
+                            curState = ParserState.OutTagValue;
                             bib[tagName] += token.Value;
                         }
                         break;
 
-                    case 8:
+                    case ParserState.OutTagValue:
                         if (token.Type == TokenType.Concatenation)
                         {
-                            curState = 7;
+                            curState = ParserState.InTagValue;
                         }
                         else if(token.Type == TokenType.Comma)
                         {
-                            curState = 9;
+                            curState = ParserState.InTagName;
                         }
                         else if(token.Type == TokenType.RightBrace)
                         {
-                            curState = 10;
+                            curState = ParserState.OutEntry;
                             // Add to result list
                         }
                         break;
 
-                    case 9:
-                        if (token.Type == TokenType.String)
-                        {
-                            curState = 8;
-                            bib[tagName] += token.Value;
-                        }
-                        else if(token.Type == TokenType.RightBrace)
-                        {
-                            curState = 10;
-                        }
-                        break;
-
-                    case 10:
+                    case ParserState.OutEntry:
                         if (token.Type == TokenType.Start)
                         {
-                            curState = 1;
+                            curState = ParserState.InStart;
                         }
                         break;
                 }
+            }
+            if(curState != ParserState.OutEntry)
+            {
+                //TODO: Need Throw an Exception
             }
         }
 
@@ -311,5 +303,19 @@ namespace BibTeXLibrary
         }
         #endregion
         
+    }
+
+    enum ParserState
+    {
+        Begin,
+        InStart,
+        InEntry,
+        InKey,
+        OutKey,
+        InTagName,
+        InTagEqual,
+        InTagValue,
+        OutTagValue,
+        OutEntry
     }
 }
