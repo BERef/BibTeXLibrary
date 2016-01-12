@@ -55,6 +55,7 @@
     <Compile Include="BibParserTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BibEntryTest.cs" />
+    <Compile Include="UnexpectedTokenExceptionTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BibTeXLibrary\BibTeXLibrary.csproj">

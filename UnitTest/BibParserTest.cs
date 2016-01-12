@@ -29,9 +29,9 @@ namespace UnitTest
                 new StringReader("@article{keyword, title = \"hello \\\"world\\\"\", address=\"Ping\" # \"Le\" # \"Yuan\",}"));
             var entry = parser.GetAllResult()[0];
 
-            Assert.AreEqual("Article", entry.Type);
+            Assert.AreEqual("Article"            , entry.Type);
             Assert.AreEqual("hello \\\"world\\\"", entry.Title);
-            Assert.AreEqual("PingLeYuan", entry.Address);
+            Assert.AreEqual("PingLeYuan"         , entry.Address);
         }
 
         [TestMethod]
@@ -42,7 +42,7 @@ namespace UnitTest
             var entry = parser.GetAllResult()[0];
 
             Assert.AreEqual("Book", entry.Type);
-            Assert.AreEqual("", entry.Title);
+            Assert.AreEqual(""    , entry.Title);
         }
 
         [TestMethod]
@@ -53,6 +53,15 @@ namespace UnitTest
             var entry = parser.GetAllResult()[0];
 
             Assert.AreEqual("Book", entry.Type);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnexpectedTokenException))]
+        public void TestParserWithBorkenBibEntry()
+        {
+            var parser = new BibParser(
+                            new StringReader("@book{,"));
+            var entry = parser.GetAllResult()[0];
         }
     }
 }
