@@ -27,13 +27,14 @@ namespace BibTeXLibrary
             {ParserState.InEntry,     new Action {
                 { TokenType.LeftBrace,     new Next(ParserState.InKey,       BibBuilderState.Skip) } } },
             {ParserState.InKey,       new Action {
+                { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.Build) },
                 { TokenType.Name,          new Next(ParserState.OutKey,      BibBuilderState.SetKey) },
                 { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.Skip) } } },
             {ParserState.OutKey,      new Action {
                 { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.Skip) } } },
             {ParserState.InTagName,   new Action {
                 { TokenType.Name,          new Next(ParserState.InTagEqual,  BibBuilderState.SetTagName) },
-                { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.Skip) } } },
+                { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.Build) } } },
             {ParserState.InTagEqual,  new Action {
                 { TokenType.Equal,         new Next(ParserState.InTagValue,  BibBuilderState.Skip) } } },
             {ParserState.InTagValue,  new Action {
@@ -41,9 +42,9 @@ namespace BibTeXLibrary
             {ParserState.OutTagValue, new Action {
                 { TokenType.Concatenation, new Next(ParserState.InTagValue,  BibBuilderState.Skip) },
                 { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.SetTag) },
-                { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.SetTag) } } },
+                { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.Build) } } },
             {ParserState.OutEntry,    new Action {
-                { TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Build) } } },
+                { TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Skip) } } },
         }; 
         #endregion
 
@@ -67,14 +68,23 @@ namespace BibTeXLibrary
         #endregion
 
         #region Public Method
-        public void GetResult()
+        /// <summary>
+        /// Get all result from Parser.
+        /// </summary>
+        /// <returns></returns>
+        public List<BibEntry> GetAllResult()
         {
-            Parser();
+            var result = new List<BibEntry>();
+            foreach (var entry in Parser())
+            {
+                result.Add(entry);
+            }
+            return result;
         }
         #endregion
 
         #region Private Method
-        private void Parser()
+        private IEnumerable<BibEntry> Parser()
         {
             var curState = ParserState.Begin;
             var nextState = ParserState.Begin;
@@ -118,9 +128,17 @@ namespace BibTeXLibrary
                     case BibBuilderState.SetTag:
                         bib[tagName] = tagValueBuilder.ToString();
                         tagValueBuilder.Clear();
+                        tagName = string.Empty;
                         break;
 
                     case BibBuilderState.Build:
+                        if(tagName != string.Empty)
+                        {
+                            bib[tagName] = tagValueBuilder.ToString();
+                            tagValueBuilder.Clear();
+                            tagName = string.Empty;
+                        }
+                        yield return bib;
                         break;
                 }
                 curState = nextState;
