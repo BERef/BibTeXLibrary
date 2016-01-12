@@ -20,7 +20,7 @@ namespace BibTeXLibrary
         }
     }
 
-    enum TokenType
+    public enum TokenType
     {
         Start,
         
@@ -35,6 +35,8 @@ namespace BibTeXLibrary
         Equal,
         Comma,
 
-        Concatenation
+        Concatenation,
+
+        EOF
     }
 }
