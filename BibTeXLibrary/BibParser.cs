@@ -16,6 +16,7 @@ namespace BibTeXLibrary
         #region Const Field
         /// <summary>
         /// State tranfer map
+        /// curState --Token--> (nextState, BibBuilderAction)
         /// </summary>
         private static readonly StateMap _stateMap = new StateMap
         {
