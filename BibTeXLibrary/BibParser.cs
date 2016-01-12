@@ -58,6 +58,11 @@ namespace BibTeXLibrary
         /// Line No. counter.
         /// </summary>
         private int _lineCount = 1;
+
+        /// <summary>
+        /// Column counter.
+        /// </summary>
+        private int _colCount = 0;
         #endregion
 
         #region Constructor
@@ -93,16 +98,21 @@ namespace BibTeXLibrary
             StringBuilder tagValueBuilder = new StringBuilder();
             string tagName = "";
 
+            // Fetch token from Lexer and build BibEntry
             foreach (var token in Lexer())
             {
+                // Transfer state
                 if(_stateMap[curState].ContainsKey(token.Type))
                 {
                     nextState = _stateMap[curState][token.Type].Item1;
                 }
                 else
                 {
-                    //TODO: need to thrown an exception
+                    var expected = from pair in _stateMap[curState]
+                                   select pair.Key;
+                    throw new UnexpectedTokenException(_lineCount, _colCount, token.Type, expected.ToArray());
                 }
+                // Build BibEntry
                 switch (_stateMap[curState][token.Type].Item2)
                 {
                     case BibBuilderState.Create:
@@ -145,7 +155,9 @@ namespace BibTeXLibrary
             }
             if(curState != ParserState.OutEntry)
             {
-                //TODO: Need Throw an Exception
+                var expected = from pair in _stateMap[curState]
+                               select pair.Key;
+                throw new UnexpectedTokenException(_lineCount, _colCount, TokenType.EOF, expected.ToArray());
             }
         }
 
@@ -259,6 +271,7 @@ namespace BibTeXLibrary
                 }
                 else if (c == '\n')
                 {
+                    _colCount = 0;
                     _lineCount++;
                 }
                 else if (!char.IsWhiteSpace(c))
@@ -290,6 +303,7 @@ namespace BibTeXLibrary
         /// <returns></returns>
         private int Read()
         {
+            _colCount++;
             return _inputText.Read();
         }
 
