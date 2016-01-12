@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 
 namespace BibTeXLibrary
 {
-    using Next = Dictionary<TokenType, ParserState>;
-    using StateMap = Dictionary<ParserState, Dictionary<TokenType, ParserState>>;
+    using Next = Tuple<ParserState, BibBuilderState>;
+    using Action = Dictionary<TokenType, Tuple<ParserState, BibBuilderState>>;
+    using StateMap = Dictionary<ParserState, Dictionary<TokenType, Tuple<ParserState, BibBuilderState>>>;
 
-    public class BibParser : IDisposable
+    public sealed class BibParser : IDisposable
     {
         #region Const Field
         /// <summary>
@@ -18,30 +19,30 @@ namespace BibTeXLibrary
         /// </summary>
         private static readonly StateMap _stateMap = new StateMap
         {
-            {ParserState.Begin, new Next {
-                { TokenType.Start, ParserState.InStart } } },
-            {ParserState.InStart, new Next {
-                { TokenType.Name, ParserState.InEntry } } },
-            {ParserState.InEntry, new Next {
-                { TokenType.LeftBrace, ParserState.InKey } } },
-            {ParserState.InKey, new Next {
-                { TokenType.Name, ParserState.OutKey },
-                { TokenType.Comma, ParserState.InTagName } } },
-            {ParserState.OutKey, new Next {
-                { TokenType.Comma, ParserState.InTagName } } },
-            {ParserState.InTagName, new Next {
-                { TokenType.Name, ParserState.InTagEqual } } },
-            {ParserState.InTagEqual, new Next {
-                { TokenType.Equal, ParserState.InTagValue } } },
-            {ParserState.InTagValue, new Next {
-                { TokenType.String, ParserState.OutTagValue },
-                /*{ TokenType.Name, ParserState.OutTagValue }*/ } },
-            {ParserState.OutTagValue, new Next {
-                { TokenType.Concatenation, ParserState.InTagValue },
-                { TokenType.Comma, ParserState.InTagName },
-                { TokenType.RightBrace, ParserState.OutEntry } } },
-            {ParserState.OutEntry, new Next {
-                { TokenType.Start, ParserState.InStart } } },
+            {ParserState.Begin,       new Action {
+                { TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Create) } } },
+            {ParserState.InStart,     new Action {
+                { TokenType.Name,          new Next(ParserState.InEntry,     BibBuilderState.SetType) } } },
+            {ParserState.InEntry,     new Action {
+                { TokenType.LeftBrace,     new Next(ParserState.InKey,       BibBuilderState.Skip) } } },
+            {ParserState.InKey,       new Action {
+                { TokenType.Name,          new Next(ParserState.OutKey,      BibBuilderState.SetKey) },
+                { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.Skip) } } },
+            {ParserState.OutKey,      new Action {
+                { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.Skip) } } },
+            {ParserState.InTagName,   new Action {
+                { TokenType.Name,          new Next(ParserState.InTagEqual,  BibBuilderState.SetTagName) },
+                { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.Skip) } } },
+            {ParserState.InTagEqual,  new Action {
+                { TokenType.Equal,         new Next(ParserState.InTagValue,  BibBuilderState.Skip) } } },
+            {ParserState.InTagValue,  new Action {
+                { TokenType.String,        new Next(ParserState.OutTagValue, BibBuilderState.SetTagValue) } } },
+            {ParserState.OutTagValue, new Action {
+                { TokenType.Concatenation, new Next(ParserState.InTagValue,  BibBuilderState.Skip) },
+                { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.SetTag) },
+                { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.SetTag) } } },
+            {ParserState.OutEntry,    new Action {
+                { TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Build) } } },
         }; 
         #endregion
 
@@ -52,7 +53,7 @@ namespace BibTeXLibrary
         private readonly TextReader _inputText;
 
         /// <summary>
-        /// Line No. counter
+        /// Line No. counter.
         /// </summary>
         private int _lineCount = 1;
         #endregion
@@ -76,8 +77,8 @@ namespace BibTeXLibrary
         {
             var curState = ParserState.Begin;
             var nextState = ParserState.Begin;
-            BibEntry bib = null;
 
+            BibEntry bib = null;
             StringBuilder tagValueBuilder = new StringBuilder();
             string tagName = "";
 
@@ -85,58 +86,42 @@ namespace BibTeXLibrary
             {
                 if(_stateMap[curState].ContainsKey(token.Type))
                 {
-                    nextState = _stateMap[curState][token.Type];
+                    nextState = _stateMap[curState][token.Type].Item1;
                 }
                 else
                 {
                     //TODO: need to thrown an exception
                 }
-                switch(curState)
+                switch (_stateMap[curState][token.Type].Item2)
                 {
-                    case ParserState.Begin:
-                        if(TryMatch(token, TokenType.Start))
-                        {
-                            bib = new BibEntry();
-                        }
-                        break;
-                        
-                    case ParserState.InKey:
-                        if (TryMatch(token, TokenType.Name))
-                        {
-                            bib.Key = token.Value;
-                        }
+                    case BibBuilderState.Create:
+                        bib = new BibEntry();
                         break;
 
-                    case ParserState.InTagName:
-                        if (TryMatch(token, TokenType.Name))
-                        {
-                            tagName = token.Value;
-                            bib[tagName] = "";
-                        }
+                    case BibBuilderState.SetType:
+                        bib.Type = token.Value;
                         break;
 
-                    case ParserState.InTagValue:
-                        if (TryMatch(token, TokenType.String))
-                        {
-                            tagValueBuilder.Append(token.Value);
-                        }
+                    case BibBuilderState.SetKey:
+                        bib.Key = token.Value;
                         break;
 
-                    case ParserState.OutTagValue:
-                        if(TryMatch(token, TokenType.Comma))
-                        {
-                            bib[tagName] = tagValueBuilder.ToString();
-                            tagValueBuilder.Clear();
-                        }
-                        else if(TryMatch(token, TokenType.RightBrace))
-                        {
-                            bib[tagName] = tagValueBuilder.ToString();
-                            tagValueBuilder.Clear();
-                            // Add to result list
-                        }
+                    case BibBuilderState.SetTagName:
+                        tagName = token.Value;
+                        break;
+
+                    case BibBuilderState.SetTagValue:
+                        tagValueBuilder.Append(token.Value);
+                        break;
+
+                    case BibBuilderState.SetTag:
+                        bib[tagName] = tagValueBuilder.ToString();
+                        tagValueBuilder.Clear();
+                        break;
+
+                    case BibBuilderState.Build:
                         break;
                 }
-
                 curState = nextState;
             }
             if(curState != ParserState.OutEntry)
@@ -325,5 +310,17 @@ namespace BibTeXLibrary
         InTagValue,
         OutTagValue,
         OutEntry
+    }
+
+    enum BibBuilderState
+    {
+        Create,
+        SetType,
+        SetKey,
+        SetTagName,
+        SetTagValue,
+        SetTag,
+        Build,
+        Skip
     }
 }
