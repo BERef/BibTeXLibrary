@@ -3,6 +3,7 @@ using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using BibTeXLibrary;
+using System.Text;
 
 namespace UnitTest
 {
@@ -62,6 +63,19 @@ namespace UnitTest
             var parser = new BibParser(
                             new StringReader("@book{,"));
             var entry = parser.GetAllResult()[0];
+        }
+
+        [TestMethod]
+        public void TestParserWithBibFile()
+        {
+            var parser = new BibParser(
+                            new StreamReader("TestData.bib", Encoding.Default));
+            var entrys = parser.GetAllResult();
+
+            Assert.AreEqual(3                                                    , entrys.Count);
+            Assert.AreEqual("nobody"                                             , entrys[0].Publisher);
+            Assert.AreEqual("Apache hadoop yarn: Yet another resource negotiator", entrys[1].Title);
+            Assert.AreEqual("KalavriShang-797"                                   , entrys[2].Key);
         }
     }
 }
