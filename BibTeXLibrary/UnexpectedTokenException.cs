@@ -41,7 +41,8 @@ namespace BibTeXLibrary
         #region Constructor
         public UnexpectedTokenException(int lineNo, int colNo, TokenType unexpected, params TokenType[] expected)
         {
-            var errorMsg = new StringBuilder($"Unexpected token: {unexpected.ToString()}. ");
+            var errorMsg = new StringBuilder(
+                $"Line {lineNo}, Col {colNo}. Unexpected token: {unexpected.ToString()}. ");
             errorMsg.Append("Expected: ");
             foreach (var item in expected)
             {
@@ -50,8 +51,8 @@ namespace BibTeXLibrary
             errorMsg.Remove(errorMsg.Length - 2, 2);
             
             _message = errorMsg.ToString();
-            LineNo = lineNo;
-            ColNo  = colNo;
+            LineNo   = lineNo;
+            ColNo    = colNo;
         }
         #endregion
     }
