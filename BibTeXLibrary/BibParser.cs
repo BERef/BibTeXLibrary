@@ -44,7 +44,7 @@ namespace BibTeXLibrary
                 { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.SetTag) },
                 { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.Build) } } },
             {ParserState.OutEntry,    new Action {
-                { TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Skip) } } },
+                { TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Create) } } },
         }; 
         #endregion
 
@@ -191,7 +191,10 @@ namespace BibTeXLibrary
                         if ((code = Peek()) == -1) break;
                         c = (char)code;
 
-                        if (!char.IsLetterOrDigit(c)) break;
+                        if (!char.IsLetterOrDigit(c) && 
+                            c != '-' && 
+                            c != '.' && 
+                            c != '_') break;
                     }
                     yield return new Token(TokenType.Name, value.ToString());
                     goto ContinueExcute;
@@ -255,6 +258,7 @@ namespace BibTeXLibrary
                 }
                 else if (c == '}')
                 {
+                    braceCount--;
                     yield return new Token(TokenType.RightBrace);
                 }
                 else if (c == ',')
@@ -305,17 +309,6 @@ namespace BibTeXLibrary
         {
             _colCount++;
             return _inputText.Read();
-        }
-
-        /// <summary>
-        /// Try match a token.
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        private bool TryMatch(Token token, TokenType type)
-        {
-            return token.Type == type;
         }
         #endregion
 
