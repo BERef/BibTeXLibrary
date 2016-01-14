@@ -77,5 +77,16 @@ namespace UnitTest
             Assert.AreEqual("Apache hadoop yarn: Yet another resource negotiator", entrys[1].Title);
             Assert.AreEqual("KalavriShang-797"                                   , entrys[2].Key);
         }
+
+        [TestMethod]
+        public void TestStaticParseWithBibFile()
+        {
+            var entrys = BibParser.Parse(new StreamReader("TestData.bib", Encoding.Default));
+
+            Assert.AreEqual(3, entrys.Count);
+            Assert.AreEqual("nobody", entrys[0].Publisher);
+            Assert.AreEqual("Apache hadoop yarn: Yet another resource negotiator", entrys[1].Title);
+            Assert.AreEqual("KalavriShang-797", entrys[2].Key);
+        }
     }
 }
