@@ -72,6 +72,19 @@ namespace BibTeXLibrary
         }
         #endregion
 
+        #region Public Static Method
+        /// <summary>
+        /// Parse by given input text reader.
+        /// </summary>
+        /// <param name="inputText"></param>
+        /// <returns></returns>
+        public static List<BibEntry> Parse(TextReader inputText)
+        {
+            var parser = new BibParser(inputText);
+            return parser.GetAllResult();
+        } 
+        #endregion
+
         #region Public Method
         /// <summary>
         /// Get all result from Parser.
@@ -179,7 +192,10 @@ namespace BibTeXLibrary
                 {
                     yield return new Token(TokenType.Start);
                 }
-                else if (char.IsLetter(c))
+                else if (char.IsLetter(c) &&
+                         c != '-' &&
+                         c != '.' &&
+                         c != '_')
                 {
                     StringBuilder value = new StringBuilder();
 
