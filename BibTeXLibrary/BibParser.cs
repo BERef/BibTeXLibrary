@@ -296,7 +296,7 @@ namespace BibTeXLibrary
                 }
                 else if (!char.IsWhiteSpace(c))
                 {
-                    //TODO: need throw an exception
+                    throw new UnexpectedCharacterException(_lineCount, _colCount, c);
                 }
 
                 // Move to next char if possible
