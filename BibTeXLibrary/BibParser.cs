@@ -192,10 +192,7 @@ namespace BibTeXLibrary
                 {
                     yield return new Token(TokenType.Start);
                 }
-                else if (char.IsLetter(c) &&
-                         c != '-' &&
-                         c != '.' &&
-                         c != '_')
+                else if (CheckCharOfName(c))
                 {
                     StringBuilder value = new StringBuilder();
 
@@ -207,10 +204,7 @@ namespace BibTeXLibrary
                         if ((code = Peek()) == -1) break;
                         c = (char)code;
 
-                        if (!char.IsLetterOrDigit(c) && 
-                            c != '-' && 
-                            c != '.' && 
-                            c != '_') break;
+                        if (CheckCharOfName(c)) break;
                     }
                     yield return new Token(TokenType.Name, value.ToString());
                     goto ContinueExcute;
@@ -243,7 +237,7 @@ namespace BibTeXLibrary
 
                         c = (char)Read();
                         value.Append(c);
-                        
+
                     }
                     yield return new Token(TokenType.String, value.ToString());
                 }
@@ -260,7 +254,7 @@ namespace BibTeXLibrary
                         while (braceCount > 1 && (code = Peek()) != -1)
                         {
                             c = (char)Read();
-                            if (c == '{') braceCount++;
+                            if      (c == '{') braceCount++;
                             else if (c == '}') braceCount--;
                             if (braceCount > 1) value.Append(c);
                         }
@@ -337,7 +331,21 @@ namespace BibTeXLibrary
             _inputText.Dispose();
         }
         #endregion
-        
+
+        #region Private Static Method
+        /// <summary>
+        /// Check a character is legal for Name token or not.
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
+        private static bool CheckCharOfName(char c)
+        {
+            return char.IsLetter(c) &&
+                   c != '-' &&
+                   c != '.' &&
+                   c != '_';
+        }
+        #endregion
     }
 
     enum ParserState

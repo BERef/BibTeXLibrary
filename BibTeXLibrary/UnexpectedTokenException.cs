@@ -7,25 +7,13 @@ using System.Threading.Tasks;
 namespace BibTeXLibrary
 {
     [Serializable]
-    public sealed class UnexpectedTokenException : ApplicationException
+    public sealed class UnexpectedTokenException : ParserErrorException
     {
         #region Private Field
         /// <summary>
         /// Customed error message.
         /// </summary>
         private readonly string _message;
-        #endregion
-
-        #region Public Field
-        /// <summary>
-        /// Line No.
-        /// </summary>
-        public readonly int LineNo;
-
-        /// <summary>
-        /// Col No.
-        /// </summary>
-        public readonly int ColNo;
         #endregion
 
         #region Public Property
@@ -40,6 +28,7 @@ namespace BibTeXLibrary
 
         #region Constructor
         public UnexpectedTokenException(int lineNo, int colNo, TokenType unexpected, params TokenType[] expected)
+            : base(lineNo, colNo)
         {
             var errorMsg = new StringBuilder(
                 $"Line {lineNo}, Col {colNo}. Unexpected token: {unexpected.ToString()}. ");
@@ -49,10 +38,7 @@ namespace BibTeXLibrary
                 errorMsg.Append($"{item.ToString()}, ");
             }
             errorMsg.Remove(errorMsg.Length - 2, 2);
-            
             _message = errorMsg.ToString();
-            LineNo   = lineNo;
-            ColNo    = colNo;
         }
         #endregion
     }
