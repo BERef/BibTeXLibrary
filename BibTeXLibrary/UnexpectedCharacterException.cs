@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BibTeXLibrary
 {
-    class UnexpectedCharacterException : ParserErrorException
+    public class UnexpectedCharacterException : ParserErrorException
     {
         #region Private Field
         /// <summary>
