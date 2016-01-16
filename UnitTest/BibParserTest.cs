@@ -21,6 +21,8 @@ namespace UnitTest
             Assert.AreEqual("\"0\"{123}456{789}", entry.Title);
             Assert.AreEqual("2012"              , entry.Year);
             Assert.AreEqual("PingLeYuan"        , entry.Address);
+
+            parser.Dispose();
         }
 
         [TestMethod]
@@ -33,6 +35,8 @@ namespace UnitTest
             Assert.AreEqual("Article"            , entry.Type);
             Assert.AreEqual("hello \\\"world\\\"", entry.Title);
             Assert.AreEqual("PingLeYuan"         , entry.Address);
+
+            parser.Dispose();
         }
 
         [TestMethod]
@@ -44,6 +48,8 @@ namespace UnitTest
 
             Assert.AreEqual("Book", entry.Type);
             Assert.AreEqual(""    , entry.Title);
+
+            parser.Dispose();
         }
 
         [TestMethod]
@@ -54,15 +60,63 @@ namespace UnitTest
             var entry = parser.GetAllResult()[0];
 
             Assert.AreEqual("Book", entry.Type);
+
+            parser.Dispose();
         }
 
         [TestMethod]
         [ExpectedException(typeof(UnexpectedTokenException))]
         public void TestParserWithBorkenBibEntry()
         {
-            var parser = new BibParser(
-                            new StringReader("@book{,"));
-            var entry = parser.GetAllResult()[0];
+            using (var parser = new BibParser(
+                            new StringReader("@book{,")))
+            {
+                var entry = parser.GetAllResult()[0];
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnexpectedTokenException))]
+        public void TestParserWithIncompletedTag()
+        {
+            using (var parser = new BibParser(
+                            new StringReader("@book{,title=,}")))
+            {
+                var entry = parser.GetAllResult()[0];
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnexpectedTokenException))]
+        public void TestParserWithBrokenTag()
+        {
+            using (var parser = new BibParser(
+                            new StringReader("@book{,titl")))
+            {
+                var entry = parser.GetAllResult()[0];
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnexpectedTokenException))]
+        public void TestParserWithBrokenNumber()
+        {
+            using (var parser = new BibParser(
+                            new StringReader("@book{,title = 2014")))
+            {
+                var entry = parser.GetAllResult()[0];
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UnexpectedCharacterException))]
+        public void TestParserWithUnexpectedCharacter()
+        {
+            using (var parser = new BibParser(
+                            new StringReader("@book{,ti?le = {Hadoop}}")))
+            {
+                var entry = parser.GetAllResult()[0];
+            }
         }
 
         [TestMethod]
@@ -76,6 +130,7 @@ namespace UnitTest
             Assert.AreEqual("nobody"                                             , entrys[0].Publisher);
             Assert.AreEqual("Apache hadoop yarn: Yet another resource negotiator", entrys[1].Title);
             Assert.AreEqual("KalavriShang-797"                                   , entrys[2].Key);
+            parser.Dispose();
         }
 
         [TestMethod]
