@@ -80,8 +80,10 @@ namespace BibTeXLibrary
         /// <returns></returns>
         public static List<BibEntry> Parse(TextReader inputText)
         {
-            var parser = new BibParser(inputText);
-            return parser.GetAllResult();
+            using (var parser = new BibParser(inputText))
+            { 
+                return parser.GetAllResult();
+            }
         } 
         #endregion
 
@@ -192,7 +194,7 @@ namespace BibTeXLibrary
                 {
                     yield return new Token(TokenType.Start);
                 }
-                else if (CheckCharOfName(c))
+                else if (char.IsLetter(c))
                 {
                     StringBuilder value = new StringBuilder();
 
@@ -204,7 +206,10 @@ namespace BibTeXLibrary
                         if ((code = Peek()) == -1) break;
                         c = (char)code;
 
-                        if (CheckCharOfName(c)) break;
+                        if (!char.IsLetterOrDigit(c) &&
+                            c != '-' &&
+                            c != '.' &&
+                            c != '_') break;
                     }
                     yield return new Token(TokenType.Name, value.ToString());
                     goto ContinueExcute;
@@ -329,21 +334,6 @@ namespace BibTeXLibrary
         public void Dispose()
         {
             _inputText.Dispose();
-        }
-        #endregion
-
-        #region Private Static Method
-        /// <summary>
-        /// Check a character is legal for Name token or not.
-        /// </summary>
-        /// <param name="c"></param>
-        /// <returns></returns>
-        private static bool CheckCharOfName(char c)
-        {
-            return char.IsLetter(c) &&
-                   c != '-' &&
-                   c != '.' &&
-                   c != '_';
         }
         #endregion
     }
