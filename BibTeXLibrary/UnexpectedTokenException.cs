@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace BibTeXLibrary
 {
     [Serializable]
-    public sealed class UnexpectedTokenException : ParserErrorException
+    public sealed class UnexpectedTokenException : ParseErrorException
     {
         #region Private Field
         /// <summary>
