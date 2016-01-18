@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BibTeXLibrary
 {
-    public abstract class ParserErrorException : ApplicationException
+    public class UnrecognizableCharacterException : ParseErrorException
     {
         #region Private Field
         /// <summary>
@@ -15,23 +15,21 @@ namespace BibTeXLibrary
         private readonly string _message;
         #endregion
 
-        #region Public Field
+        #region Public Property
         /// <summary>
-        /// Line No.
+        /// Error message.
         /// </summary>
-        public readonly int LineNo;
-
-        /// <summary>
-        /// Col No.
-        /// </summary>
-        public readonly int ColNo;
+        public override string Message
+        {
+            get { return _message; }
+        }
         #endregion
 
         #region Constructor
-        public ParserErrorException(int lineNo, int colNo)
+        public UnrecognizableCharacterException(int lineNo, int colNo, char unexpected)
+            : base(lineNo, colNo)
         {
-            LineNo = lineNo;
-            ColNo  = colNo;
+            _message = $"Line {lineNo}, Col {colNo}. Unrecognizable character: '{unexpected.ToString()}'.";
         }
         #endregion
     }
