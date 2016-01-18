@@ -42,10 +42,10 @@
   <ItemGroup>
     <Compile Include="BibEntry.cs" />
     <Compile Include="BibParser.cs" />
-    <Compile Include="ParserErrorException.cs" />
+    <Compile Include="ParseErrorException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Token.cs" />
-    <Compile Include="UnexpectedCharacterException.cs" />
+    <Compile Include="UnrecognizableCharacterException.cs" />
     <Compile Include="UnexpectedTokenException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
