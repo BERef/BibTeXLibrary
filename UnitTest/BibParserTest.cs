@@ -109,7 +109,7 @@ namespace UnitTest
         }
 
         [TestMethod]
-        [ExpectedException(typeof(UnexpectedCharacterException))]
+        [ExpectedException(typeof(UnrecognizableCharacterException))]
         public void TestParserWithUnexpectedCharacter()
         {
             using (var parser = new BibParser(
