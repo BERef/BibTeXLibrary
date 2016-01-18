@@ -263,10 +263,6 @@ namespace BibTeXLibrary
                             else if (c == '}') braceCount--;
                             if (braceCount > 1) value.Append(c);
                         }
-                        if (braceCount > 1)
-                        {
-                            //TODO: need throw an exception
-                        }
                         yield return new Token(TokenType.String, value.ToString());
                         goto ContinueExcute;
                     }
@@ -295,7 +291,7 @@ namespace BibTeXLibrary
                 }
                 else if (!char.IsWhiteSpace(c))
                 {
-                    throw new UnexpectedCharacterException(_lineCount, _colCount, c);
+                    throw new UnrecognizableCharacterException(_lineCount, _colCount, c);
                 }
 
                 // Move to next char if possible
