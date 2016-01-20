@@ -122,8 +122,7 @@ namespace UnitTest
         [TestMethod]
         public void TestParserWithBibFile()
         {
-            var parser = new BibParser(
-                            new StreamReader("TestData.bib", Encoding.Default));
+            var parser = new BibParser(new StreamReader("TestData/BibParserTest1_In.bib", Encoding.Default));
             var entrys = parser.GetAllResult();
 
             Assert.AreEqual(3                                                    , entrys.Count);
@@ -136,12 +135,26 @@ namespace UnitTest
         [TestMethod]
         public void TestStaticParseWithBibFile()
         {
-            var entrys = BibParser.Parse(new StreamReader("TestData.bib", Encoding.Default));
+            var entrys = BibParser.Parse(new StreamReader("TestData/BibParserTest1_In.bib", Encoding.Default));
 
-            Assert.AreEqual(3, entrys.Count);
-            Assert.AreEqual("nobody", entrys[0].Publisher);
+            Assert.AreEqual(3                                                    , entrys.Count);
+            Assert.AreEqual("nobody"                                             , entrys[0].Publisher);
             Assert.AreEqual("Apache hadoop yarn: Yet another resource negotiator", entrys[1].Title);
-            Assert.AreEqual("KalavriShang-797", entrys[2].Key);
+            Assert.AreEqual("KalavriShang-797"                                   , entrys[2].Key);
+        }
+
+        [TestMethod]
+        public void TestParserResult()
+        {
+            var parser = new BibParser(new StreamReader("TestData/BibParserTest1_In.bib", Encoding.Default));
+            var entry = parser.GetAllResult()[0];
+
+            var sr = new StreamReader("TestData/BibParserTest1_Out1.bib", Encoding.Default);
+            var expected = sr.ReadToEnd().Replace("\r", "");
+
+            Assert.AreEqual(expected, entry.ToString());
+
+            parser.Dispose();
         }
     }
 }

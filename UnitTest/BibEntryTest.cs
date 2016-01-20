@@ -48,5 +48,11 @@ namespace UnitTest
             var entry = new BibEntry();
             entry.Type = "inbookK";
         }
+
+        [TestMethod]
+        public void TestToString()
+        {
+            //TODO:
+        }
     }
 }
