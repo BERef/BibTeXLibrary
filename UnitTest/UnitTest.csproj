@@ -65,7 +65,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="TestData.bib">
+    <None Include="TestData\BibParserTest1_Out1.bib">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\BibParserTest1_In.bib">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
