@@ -185,6 +185,31 @@ namespace BibTeXLibrary
         #endregion
 
         #region Public Method
+        /// <summary>
+        /// To BibTeX entry
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            var bib = new StringBuilder("@");
+            bib.Append(Type);
+            bib.Append('{');
+            bib.Append(Key);
+            bib.Append(",\n");
+
+            foreach(var tag in _tags)
+            {
+                bib.Append("  ");
+                bib.Append(tag.Key);
+                bib.Append(" = {");
+                bib.Append(tag.Value);
+                bib.Append("},\n");
+            }
+
+            bib.Append("}");
+
+            return bib.ToString();
+        }
         #endregion
 
         #region Public Indexer
