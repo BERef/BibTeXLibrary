@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="BibEntry.cs" />
     <Compile Include="BibParser.cs" />
+    <Compile Include="Config.cs" />
     <Compile Include="ParseErrorException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Token.cs" />
