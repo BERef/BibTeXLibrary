@@ -195,15 +195,17 @@ namespace BibTeXLibrary
             bib.Append(Type);
             bib.Append('{');
             bib.Append(Key);
-            bib.Append(",\n");
+            bib.Append(",");
+            bib.Append(Config.LineFeed);
 
             foreach(var tag in _tags)
             {
-                bib.Append("  ");
+                bib.Append(Config.Retract);
                 bib.Append(tag.Key);
                 bib.Append(" = {");
                 bib.Append(tag.Value);
-                bib.Append("},\n");
+                bib.Append("},");
+                bib.Append(Config.LineFeed);
             }
 
             bib.Append("}");
