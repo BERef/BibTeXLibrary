@@ -8,9 +8,6 @@ namespace BibTeXLibrary
 {
     public class BibEntry
     {
-        #region Static Field
-        #endregion
-
         #region Private Field
         /// <summary>
         /// Entry's type
@@ -20,7 +17,7 @@ namespace BibTeXLibrary
         /// <summary>
         /// Store all tags
         /// </summary>
-        private Dictionary<string, string> _tags = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _tags = new Dictionary<string, string>();
         #endregion
 
         #region Constructor
@@ -233,10 +230,6 @@ namespace BibTeXLibrary
                 _tags[index.ToLower()] = value;
             }
         }
-        #endregion
-
-        #region Private Method
-
         #endregion
     }
 

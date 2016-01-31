@@ -8,13 +8,6 @@ namespace BibTeXLibrary
 {
     public abstract class ParseErrorException : ApplicationException
     {
-        #region Private Field
-        /// <summary>
-        /// Customed error message.
-        /// </summary>
-        private readonly string _message;
-        #endregion
-
         #region Public Field
         /// <summary>
         /// Line No.
@@ -28,7 +21,8 @@ namespace BibTeXLibrary
         #endregion
 
         #region Constructor
-        public ParseErrorException(int lineNo, int colNo)
+
+        protected ParseErrorException(int lineNo, int colNo)
         {
             LineNo = lineNo;
             ColNo  = colNo;

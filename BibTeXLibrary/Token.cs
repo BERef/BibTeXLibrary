@@ -16,7 +16,7 @@ namespace BibTeXLibrary
         {
             Type = type;
             Value = value;
-            Debug.WriteLine(type.ToString() + "\t" + value);
+            Debug.WriteLine(type + "\t" + value);
         }
     }
 

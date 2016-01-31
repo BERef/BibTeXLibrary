@@ -9,21 +9,12 @@ namespace BibTeXLibrary
     [Serializable]
     public sealed class UnexpectedTokenException : ParseErrorException
     {
-        #region Private Field
-        /// <summary>
-        /// Customed error message.
-        /// </summary>
-        private readonly string _message;
-        #endregion
-
         #region Public Property
         /// <summary>
         /// Error message.
         /// </summary>
-        public override string Message
-        {
-            get { return _message; }
-        }
+        public override string Message { get; }
+
         #endregion
 
         #region Constructor
@@ -31,14 +22,14 @@ namespace BibTeXLibrary
             : base(lineNo, colNo)
         {
             var errorMsg = new StringBuilder(
-                $"Line {lineNo}, Col {colNo}. Unexpected token: {unexpected.ToString()}. ");
+                $"Line {lineNo}, Col {colNo}. Unexpected token: {unexpected}. ");
             errorMsg.Append("Expected: ");
             foreach (var item in expected)
             {
-                errorMsg.Append($"{item.ToString()}, ");
+                errorMsg.Append($"{item}, ");
             }
             errorMsg.Remove(errorMsg.Length - 2, 2);
-            _message = errorMsg.ToString();
+            Message = errorMsg.ToString();
         }
         #endregion
     }
