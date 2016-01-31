@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using BibTeXLibrary;
@@ -71,7 +70,7 @@ namespace UnitTest
             using (var parser = new BibParser(
                             new StringReader("@book{,")))
             {
-                var entry = parser.GetAllResult()[0];
+                parser.GetAllResult();
             }
         }
 
@@ -82,7 +81,7 @@ namespace UnitTest
             using (var parser = new BibParser(
                             new StringReader("@book{,title=,}")))
             {
-                var entry = parser.GetAllResult()[0];
+                parser.GetAllResult();
             }
         }
 
@@ -93,7 +92,7 @@ namespace UnitTest
             using (var parser = new BibParser(
                             new StringReader("@book{,titl")))
             {
-                var entry = parser.GetAllResult()[0];
+                parser.GetAllResult();
             }
         }
 
@@ -104,7 +103,7 @@ namespace UnitTest
             using (var parser = new BibParser(
                             new StringReader("@book{,title = 2014")))
             {
-                var entry = parser.GetAllResult()[0];
+                parser.GetAllResult();
             }
         }
 
@@ -115,7 +114,7 @@ namespace UnitTest
             using (var parser = new BibParser(
                             new StringReader("@book{,ti?le = {Hadoop}}")))
             {
-                var entry = parser.GetAllResult()[0];
+                parser.GetAllResult();
             }
         }
 

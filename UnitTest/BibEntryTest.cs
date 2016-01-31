@@ -11,9 +11,8 @@ namespace UnitTest
         [TestMethod]
         public void TestIndexer()
         {
-            var title = "Mapreduce";
-            var entry = new BibEntry();
-            entry["Title"] = title;
+            const string title = "Mapreduce";
+            var entry = new BibEntry {["Title"] = title};
 
             Assert.AreEqual(title, entry["title"]);
             Assert.AreEqual(title, entry["Title"]);
@@ -23,9 +22,8 @@ namespace UnitTest
         [TestMethod]
         public void TestProperty()
         {
-            var title = "Mapreduce";
-            var entry = new BibEntry();
-            entry["Title"] = title;
+            const string title = "Mapreduce";
+            var entry = new BibEntry {["Title"] = title};
 
             Assert.AreEqual(title, entry.Title);
         }
@@ -33,8 +31,7 @@ namespace UnitTest
         [TestMethod]
         public void TestSetType()
         {
-            var entry = new BibEntry();
-            entry.Type = "inbook";
+            var entry = new BibEntry {Type = "inbook"};
             Assert.AreEqual("InBook", entry.Type);
 
             entry.Type = "inBoOK";
@@ -45,8 +42,7 @@ namespace UnitTest
         [ExpectedException(typeof(ArgumentException))]
         public void TestSetTypeWithInvalidValue()
         {
-            var entry = new BibEntry();
-            entry.Type = "inbookK";
+            new BibEntry {Type = "inbookK"};
         }
 
         [TestMethod]

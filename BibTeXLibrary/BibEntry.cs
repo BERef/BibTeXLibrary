@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BibTeXLibrary
 {
@@ -18,13 +16,6 @@ namespace BibTeXLibrary
         /// Store all tags
         /// </summary>
         private readonly Dictionary<string, string> _tags = new Dictionary<string, string>();
-        #endregion
-
-        #region Constructor
-        public BibEntry()
-        {
-
-        }
         #endregion
 
         #region Public Property

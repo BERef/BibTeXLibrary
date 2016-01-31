@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BibTeXLibrary
 {
@@ -18,7 +18,7 @@ namespace BibTeXLibrary
         /// State tranfer map
         /// curState --Token--> (nextState, BibBuilderAction)
         /// </summary>
-        private static readonly StateMap _stateMap = new StateMap
+        private static readonly StateMap StateMap = new StateMap
         {
             {ParserState.Begin,       new Action {
                 { TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Create) } } },
@@ -62,7 +62,7 @@ namespace BibTeXLibrary
         /// <summary>
         /// Column counter.
         /// </summary>
-        private int _colCount = 0;
+        private int _colCount;
         #endregion
 
         #region Constructor
@@ -94,19 +94,15 @@ namespace BibTeXLibrary
         /// <returns></returns>
         public List<BibEntry> GetAllResult()
         {
-            var result = new List<BibEntry>();
-            foreach (var entry in Parser())
-            {
-                result.Add(entry);
-            }
-            return result;
+            return Parser().ToList();
         }
+
         #endregion
 
         #region Private Method
         private IEnumerable<BibEntry> Parser()
         {
-            var curState = ParserState.Begin;
+            var curState  = ParserState.Begin;
             var nextState = ParserState.Begin;
 
             BibEntry bib = null;
@@ -117,28 +113,30 @@ namespace BibTeXLibrary
             foreach (var token in Tokenizer())
             {
                 // Transfer state
-                if(_stateMap[curState].ContainsKey(token.Type))
+                if(StateMap[curState].ContainsKey(token.Type))
                 {
-                    nextState = _stateMap[curState][token.Type].Item1;
+                    nextState = StateMap[curState][token.Type].Item1;
                 }
                 else
                 {
-                    var expected = from pair in _stateMap[curState]
+                    var expected = from pair in StateMap[curState]
                                    select pair.Key;
                     throw new UnexpectedTokenException(_lineCount, _colCount, token.Type, expected.ToArray());
                 }
                 // Build BibEntry
-                switch (_stateMap[curState][token.Type].Item2)
+                switch (StateMap[curState][token.Type].Item2)
                 {
                     case BibBuilderState.Create:
                         bib = new BibEntry();
                         break;
 
                     case BibBuilderState.SetType:
+                        Debug.Assert(bib != null, "bib != null");
                         bib.Type = token.Value;
                         break;
 
                     case BibBuilderState.SetKey:
+                        Debug.Assert(bib != null, "bib != null");
                         bib.Key = token.Value;
                         break;
 
@@ -151,6 +149,7 @@ namespace BibTeXLibrary
                         break;
 
                     case BibBuilderState.SetTag:
+                        Debug.Assert(bib != null, "bib != null");
                         bib[tagName] = tagValueBuilder.ToString();
                         tagValueBuilder.Clear();
                         tagName = string.Empty;
@@ -159,6 +158,7 @@ namespace BibTeXLibrary
                     case BibBuilderState.Build:
                         if(tagName != string.Empty)
                         {
+                            Debug.Assert(bib != null, "bib != null");
                             bib[tagName] = tagValueBuilder.ToString();
                             tagValueBuilder.Clear();
                             tagName = string.Empty;
@@ -170,7 +170,7 @@ namespace BibTeXLibrary
             }
             if(curState != ParserState.OutEntry)
             {
-                var expected = from pair in _stateMap[curState]
+                var expected = from pair in StateMap[curState]
                                select pair.Key;
                 throw new UnexpectedTokenException(_lineCount, _colCount, TokenType.EOF, expected.ToArray());
             }
@@ -184,7 +184,7 @@ namespace BibTeXLibrary
         {
             int code;
             char c;
-            int braceCount = 0;
+            var braceCount = 0;
 
             while ((code = Peek()) != -1)
             {
@@ -254,9 +254,9 @@ namespace BibTeXLibrary
                     }
                     else
                     {
-                        StringBuilder value = new StringBuilder();
+                        var value = new StringBuilder();
                         Read();
-                        while (braceCount > 1 && (code = Peek()) != -1)
+                        while (braceCount > 1 && Peek() != -1)
                         {
                             c = (char)Read();
                             if      (c == '{') braceCount++;
@@ -299,7 +299,8 @@ namespace BibTeXLibrary
                     _inputText.Read();
 
                 // Don't move
-                ContinueExcute: continue;
+                ContinueExcute:
+                ;
             }
         }
 
