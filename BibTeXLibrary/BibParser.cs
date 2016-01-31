@@ -110,11 +110,11 @@ namespace BibTeXLibrary
             var nextState = ParserState.Begin;
 
             BibEntry bib = null;
-            StringBuilder tagValueBuilder = new StringBuilder();
-            string tagName = "";
+            var tagValueBuilder = new StringBuilder();
+            var tagName = "";
 
-            // Fetch token from Lexer and build BibEntry
-            foreach (var token in Lexer())
+            // Fetch token from Tokenizer and build BibEntry
+            foreach (var token in Tokenizer())
             {
                 // Transfer state
                 if(_stateMap[curState].ContainsKey(token.Type))
@@ -177,10 +177,10 @@ namespace BibTeXLibrary
         }
 
         /// <summary>
-        /// Lexer for BibTeX entry.
+        /// Tokenizer for BibTeX entry.
         /// </summary>
         /// <returns></returns>
-        private IEnumerable<Token> Lexer()
+        private IEnumerable<Token> Tokenizer()
         {
             int code;
             char c;
@@ -196,7 +196,7 @@ namespace BibTeXLibrary
                 }
                 else if (char.IsLetter(c))
                 {
-                    StringBuilder value = new StringBuilder();
+                    var value = new StringBuilder();
 
                     while (true)
                     {
@@ -216,7 +216,7 @@ namespace BibTeXLibrary
                 }
                 else if (char.IsDigit(c))
                 {
-                    StringBuilder value = new StringBuilder();
+                    var value = new StringBuilder();
 
                     while (true)
                     {
@@ -233,7 +233,7 @@ namespace BibTeXLibrary
                 }
                 else if (c == '"')
                 {
-                    StringBuilder value = new StringBuilder();
+                    var value = new StringBuilder();
 
                     _inputText.Read();
                     while ((code = Peek()) != -1)
