@@ -122,24 +122,24 @@ namespace UnitTest
         public void TestParserWithBibFile()
         {
             var parser = new BibParser(new StreamReader("TestData/BibParserTest1_In.bib", Encoding.Default));
-            var entrys = parser.GetAllResult();
+            var entries = parser.GetAllResult();
 
-            Assert.AreEqual(3                                                    , entrys.Count);
-            Assert.AreEqual("nobody"                                             , entrys[0].Publisher);
-            Assert.AreEqual("Apache hadoop yarn: Yet another resource negotiator", entrys[1].Title);
-            Assert.AreEqual("KalavriShang-797"                                   , entrys[2].Key);
+            Assert.AreEqual(3                                                    , entries.Count);
+            Assert.AreEqual("nobody"                                             , entries[0].Publisher);
+            Assert.AreEqual("Apache hadoop yarn: Yet another resource negotiator", entries[1].Title);
+            Assert.AreEqual("KalavriShang-797"                                   , entries[2].Key);
             parser.Dispose();
         }
 
         [TestMethod]
         public void TestStaticParseWithBibFile()
         {
-            var entrys = BibParser.Parse(new StreamReader("TestData/BibParserTest1_In.bib", Encoding.Default));
+            var entries = BibParser.Parse(new StreamReader("TestData/BibParserTest1_In.bib", Encoding.Default));
 
-            Assert.AreEqual(3                                                    , entrys.Count);
-            Assert.AreEqual("nobody"                                             , entrys[0].Publisher);
-            Assert.AreEqual("Apache hadoop yarn: Yet another resource negotiator", entrys[1].Title);
-            Assert.AreEqual("KalavriShang-797"                                   , entrys[2].Key);
+            Assert.AreEqual(3                                                    , entries.Count);
+            Assert.AreEqual("nobody"                                             , entries[0].Publisher);
+            Assert.AreEqual("Apache hadoop yarn: Yet another resource negotiator", entries[1].Title);
+            Assert.AreEqual("KalavriShang-797"                                   , entries[2].Key);
         }
 
         [TestMethod]
