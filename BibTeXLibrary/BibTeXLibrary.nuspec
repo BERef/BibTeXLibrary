@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>BERef.BibTeXTools</id>
+    <version>$version$</version>
+    <title>BERef.BibTeXTools</title>
+    <authors>Blueve</authors>
+    <owners>BERef</owners>
+    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>https://github.com/BERef/BibTeXLibrary</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>First release.</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>BibTeX Parser</tags>
+  </metadata>
+</package>
