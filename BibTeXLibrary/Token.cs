@@ -18,7 +18,7 @@ namespace BibTeXLibrary
     public enum TokenType
     {
         Start,
-        
+
         Name,
         String,
 

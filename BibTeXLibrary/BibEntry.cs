@@ -4,6 +4,9 @@ using System.Text;
 
 namespace BibTeXLibrary
 {
+    using System.Linq;
+    using System.Runtime.CompilerServices;
+
     public class BibEntry
     {
         #region Private Field
@@ -21,134 +24,146 @@ namespace BibTeXLibrary
         #region Public Property
         public string Address
         {
-            get { return this["address"]; }
-            set { this["address"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Annote
         {
-            get { return this["annote"]; }
-            set { this["annote"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Author
         {
-            get { return this["author"]; }
-            set { this["author"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Booktitle
         {
-            get { return this["booktitle"]; }
-            set { this["booktitle"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Chapter
         {
-            get { return this["chapter"]; }
-            set { this["chapter"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Crossref
         {
-            get { return this["crossref"]; }
-            set { this["crossref"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Edition
         {
-            get { return this["edition"]; }
-            set { this["edition"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Editor
         {
-            get { return this["editor"]; }
-            set { this["editor"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Howpublished
         {
-            get { return this["howpublished"]; }
-            set { this["howpublished"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Institution
         {
-            get { return this["institution"]; }
-            set { this["institution"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Journal
         {
-            get { return this["journal"]; }
-            set { this["journal"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Mouth
         {
-            get { return this["mouth"]; }
-            set { this["mouth"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Note
         {
-            get { return this["note"]; }
-            set { this["note"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Number
         {
-            get { return this["number"]; }
-            set { this["number"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Organization
         {
-            get { return this["organization"]; }
-            set { this["organization"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Pages
         {
-            get { return this["pages"]; }
-            set { this["pages"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Publisher
         {
-            get { return this["publisher"]; }
-            set { this["publisher"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string School
         {
-            get { return this["shcool"]; }
-            set { this["school"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Series
         {
-            get { return this["series"]; }
-            set { this["series"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Title
         {
-            get { return this["title"]; }
-            set { this["title"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Volume
         {
-            get { return this["volume"]; }
-            set { this["volume"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         public string Year
         {
-            get { return this["year"]; }
-            set { this["year"] = value; }
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
+        }
+
+        public string Month
+        {
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
+        }
+
+        public string Abstract
+        {
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
         }
 
         /// <summary>
@@ -173,6 +188,12 @@ namespace BibTeXLibrary
         #endregion
 
         #region Public Method
+
+        private string GetFormattedName([CallerMemberName] string propertyName = null)
+        {
+            return propertyName.First().ToString().ToLower() + propertyName.Substring(1);
+        }
+
         /// <summary>
         /// To BibTeX entry
         /// </summary>
@@ -186,7 +207,7 @@ namespace BibTeXLibrary
             bib.Append(",");
             bib.Append(Config.LineFeed);
 
-            foreach(var tag in _tags)
+            foreach (var tag in _tags)
             {
                 bib.Append(Config.Retract);
                 bib.Append(tag.Key);
