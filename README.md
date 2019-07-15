@@ -1,4 +1,8 @@
 # BibTeXLibrary
+
+[![Build Status](https://dev.azure.com/blueveyoud/BibTeXLibrary/_apis/build/status/BERef.BibTeXLibrary?branchName=master)](https://dev.azure.com/blueveyoud/BibTeXLibrary/_build/latest?definitionId=2&branchName=master)
+![Nuget](https://img.shields.io/nuget/v/BERef.BibTeXTools.svg)
+
 A utility library for BibTeX written in C#.
 
 ## Installation
