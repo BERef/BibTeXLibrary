@@ -194,6 +194,20 @@ namespace BibTeXLibrary
                 {
                     yield return new Token(TokenType.Start);
                 }
+                else if (c == '%')
+                {
+                    // Read past comments.  If a comment character is found, read until
+                    // the end of the line or the end of the file is found.  The EOF or EOL
+                    // character is not read.  That is left for the next loop to handle in
+                    // the normal manner.
+                    while (true)
+                    {
+						Read();
+						if ((code = Peek()) == -1) break;
+						c = (char)code;
+                        if (c == '\n') break;
+					}
+                }
                 else if (char.IsLetter(c))
                 {
                     var value = new StringBuilder();
