@@ -22,30 +22,41 @@ namespace BibTeXLibrary
         {
             {ParserState.Begin,       new Action {
                 { TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Create) } } },
+
             {ParserState.InStart,     new Action {
                 { TokenType.Name,          new Next(ParserState.InEntry,     BibBuilderState.SetType) } } },
+
             {ParserState.InEntry,     new Action {
                 { TokenType.LeftBrace,     new Next(ParserState.InKey,       BibBuilderState.Skip) } } },
+
             {ParserState.InKey,       new Action {
                 { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.Build) },
                 { TokenType.Name,          new Next(ParserState.OutKey,      BibBuilderState.SetKey) },
                 { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.Skip) } } },
+
             {ParserState.OutKey,      new Action {
                 { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.Skip) } } },
+
             {ParserState.InTagName,   new Action {
                 { TokenType.Name,          new Next(ParserState.InTagEqual,  BibBuilderState.SetTagName) },
                 { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.Build) } } },
+
             {ParserState.InTagEqual,  new Action {
                 { TokenType.Equal,         new Next(ParserState.InTagValue,  BibBuilderState.Skip) } } },
+
             {ParserState.InTagValue,  new Action {
-                { TokenType.String,        new Next(ParserState.OutTagValue, BibBuilderState.SetTagValue) } } },
+                { TokenType.String,        new Next(ParserState.OutTagValue, BibBuilderState.SetTagValue) },
+                { TokenType.Name,          new Next(ParserState.OutTagValue, BibBuilderState.SetTagValue) }
+            } },
+
             {ParserState.OutTagValue, new Action {
                 { TokenType.Concatenation, new Next(ParserState.InTagValue,  BibBuilderState.Skip) },
                 { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.SetTag) },
                 { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.Build) } } },
+
             {ParserState.OutEntry,    new Action {
                 { TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Create) } } },
-        }; 
+        };
         #endregion
 
         #region Private Field
@@ -70,6 +81,7 @@ namespace BibTeXLibrary
         {
             _inputText = inputText;
         }
+
         #endregion
 
         #region Public Static Method
@@ -81,10 +93,10 @@ namespace BibTeXLibrary
         public static List<BibEntry> Parse(TextReader inputText)
         {
             using (var parser = new BibParser(inputText))
-            { 
+            {
                 return parser.GetAllResult();
             }
-        } 
+        }
         #endregion
 
         #region Public Method
@@ -102,77 +114,84 @@ namespace BibTeXLibrary
         #region Private Method
         private IEnumerable<BibEntry> Parser()
         {
-            var curState  = ParserState.Begin;
-            var nextState = ParserState.Begin;
-
-            BibEntry bib = null;
-            var tagValueBuilder = new StringBuilder();
-            var tagName = "";
-
-            // Fetch token from Tokenizer and build BibEntry
-            foreach (var token in Tokenizer())
+            try
             {
-                // Transfer state
-                if(StateMap[curState].ContainsKey(token.Type))
+                var curState = ParserState.Begin;
+                var nextState = ParserState.Begin;
+
+                BibEntry bib = null;
+                var tagValueBuilder = new StringBuilder();
+                var tagName = "";
+
+                // Fetch token from Tokenizer and build BibEntry
+                foreach (var token in Tokenizer())
                 {
-                    nextState = StateMap[curState][token.Type].Item1;
-                }
-                else
-                {
-                    var expected = from pair in StateMap[curState]
-                                   select pair.Key;
-                    throw new UnexpectedTokenException(_lineCount, _colCount, token.Type, expected.ToArray());
-                }
-                // Build BibEntry
-                switch (StateMap[curState][token.Type].Item2)
-                {
-                    case BibBuilderState.Create:
-                        bib = new BibEntry();
-                        break;
+                    // Transfer state
+                    if (StateMap[curState].ContainsKey(token.Type))
+                    {
+                        nextState = StateMap[curState][token.Type].Item1;
+                    }
+                    else
+                    {
+                        var expected = from pair in StateMap[curState]
+                            select pair.Key;
+                        throw new UnexpectedTokenException(_lineCount, _colCount, token.Type, expected.ToArray());
+                    }
+                    // Build BibEntry
+                    switch (StateMap[curState][token.Type].Item2)
+                    {
+                        case BibBuilderState.Create:
+                            bib = new BibEntry();
+                            break;
 
-                    case BibBuilderState.SetType:
-                        Debug.Assert(bib != null, "bib != null");
-                        bib.Type = token.Value;
-                        break;
+                        case BibBuilderState.SetType:
+                            Debug.Assert(bib != null, "bib != null");
+                            bib.Type = token.Value;
+                            break;
 
-                    case BibBuilderState.SetKey:
-                        Debug.Assert(bib != null, "bib != null");
-                        bib.Key = token.Value;
-                        break;
+                        case BibBuilderState.SetKey:
+                            Debug.Assert(bib != null, "bib != null");
+                            bib.Key = token.Value;
+                            break;
 
-                    case BibBuilderState.SetTagName:
-                        tagName = token.Value;
-                        break;
+                        case BibBuilderState.SetTagName:
+                            tagName = token.Value;
+                            break;
 
-                    case BibBuilderState.SetTagValue:
-                        tagValueBuilder.Append(token.Value);
-                        break;
+                        case BibBuilderState.SetTagValue:
+                            tagValueBuilder.Append(token.Value);
+                            break;
 
-                    case BibBuilderState.SetTag:
-                        Debug.Assert(bib != null, "bib != null");
-                        bib[tagName] = tagValueBuilder.ToString();
-                        tagValueBuilder.Clear();
-                        tagName = string.Empty;
-                        break;
-
-                    case BibBuilderState.Build:
-                        if(tagName != string.Empty)
-                        {
+                        case BibBuilderState.SetTag:
                             Debug.Assert(bib != null, "bib != null");
                             bib[tagName] = tagValueBuilder.ToString();
                             tagValueBuilder.Clear();
                             tagName = string.Empty;
-                        }
-                        yield return bib;
-                        break;
+                            break;
+
+                        case BibBuilderState.Build:
+                            if (tagName != string.Empty)
+                            {
+                                Debug.Assert(bib != null, "bib != null");
+                                bib[tagName] = tagValueBuilder.ToString();
+                                tagValueBuilder.Clear();
+                                tagName = string.Empty;
+                            }
+                            yield return bib;
+                            break;
+                    }
+                    curState = nextState;
                 }
-                curState = nextState;
+                if (curState != ParserState.OutEntry)
+                {
+                    var expected = from pair in StateMap[curState]
+                        select pair.Key;
+                    throw new UnexpectedTokenException(_lineCount, _colCount, TokenType.EOF, expected.ToArray());
+                }
             }
-            if(curState != ParserState.OutEntry)
+            finally
             {
-                var expected = from pair in StateMap[curState]
-                               select pair.Key;
-                throw new UnexpectedTokenException(_lineCount, _colCount, TokenType.EOF, expected.ToArray());
+                Dispose();
             }
         }
 
@@ -185,28 +204,15 @@ namespace BibTeXLibrary
             int code;
             char c;
             var braceCount = 0;
+            bool skipRead = false;
 
             while ((code = Peek()) != -1)
             {
                 c = (char)code;
 
                 if (c == '@')
-                {
+                {                    
                     yield return new Token(TokenType.Start);
-                }
-                else if (c == '%')
-                {
-                    // Read past comments.  If a comment character is found, read until
-                    // the end of the line or the end of the file is found.  The EOF or EOL
-                    // character is not read.  That is left for the next loop to handle in
-                    // the normal manner.
-                    while (true)
-                    {
-						Read();
-						if ((code = Peek()) == -1) break;
-						c = (char)code;
-                        if (c == '\n') break;
-					}
                 }
                 else if (char.IsLetter(c))
                 {
@@ -223,7 +229,8 @@ namespace BibTeXLibrary
                         if (!char.IsLetterOrDigit(c) &&
                             c != '-' &&
                             c != '.' &&
-                            c != '_') break;
+                            c != '_' &&
+                            c != ':') break;
                     }
                     yield return new Token(TokenType.Name, value.ToString());
                     goto ContinueExcute;
@@ -273,7 +280,7 @@ namespace BibTeXLibrary
                         while (braceCount > 1 && Peek() != -1)
                         {
                             c = (char)Read();
-                            if      (c == '{') braceCount++;
+                            if (c == '{') braceCount++;
                             else if (c == '}') braceCount--;
                             if (braceCount > 1) value.Append(c);
                         }
@@ -303,15 +310,23 @@ namespace BibTeXLibrary
                     _colCount = 0;
                     _lineCount++;
                 }
+                else if (Config.BeginCommentCharacters.Any(item => item == c))
+                {
+                    _colCount = 0;
+                    _lineCount++;
+                    _inputText.ReadLine();
+                    skipRead = true;
+                }
                 else if (!char.IsWhiteSpace(c))
                 {
                     throw new UnrecognizableCharacterException(_lineCount, _colCount, c);
                 }
 
                 // Move to next char if possible
-                if (_inputText.Peek() != -1)
+                if (_inputText.Peek() != -1 && !skipRead)
                     _inputText.Read();
 
+                skipRead = false;
                 // Don't move
                 ContinueExcute:
                 ;
@@ -344,7 +359,7 @@ namespace BibTeXLibrary
         /// </summary>
         public void Dispose()
         {
-            _inputText.Dispose();
+            _inputText?.Dispose();
         }
         #endregion
     }

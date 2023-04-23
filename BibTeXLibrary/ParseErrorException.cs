@@ -21,7 +21,7 @@ namespace BibTeXLibrary
         protected ParseErrorException(int lineNo, int colNo)
         {
             LineNo = lineNo;
-            ColNo  = colNo;
+            ColNo = colNo;
         }
         #endregion
     }

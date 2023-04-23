@@ -12,6 +12,8 @@ namespace BibTeXLibrary
 
         public static bool Align { get; private set; } = false;
 
+        public static char[] BeginCommentCharacters { get; private set; } = {'%'};
+
         #endregion
 
         #region Public Static Method

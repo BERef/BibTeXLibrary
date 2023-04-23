@@ -124,7 +124,7 @@ namespace UnitTest
             var parser = new BibParser(new StreamReader("TestData/BibParserTest1_In.bib", Encoding.Default));
             var entries = parser.GetAllResult();
 
-            Assert.AreEqual(3                                                    , entries.Count);
+            Assert.AreEqual(4                                                    , entries.Count);
             Assert.AreEqual("nobody"                                             , entries[0].Publisher);
             Assert.AreEqual("Apache hadoop yarn: Yet another resource negotiator", entries[1].Title);
             Assert.AreEqual("KalavriShang-797"                                   , entries[2].Key);
@@ -136,7 +136,7 @@ namespace UnitTest
         {
             var entries = BibParser.Parse(new StreamReader("TestData/BibParserTest1_In.bib", Encoding.Default));
 
-            Assert.AreEqual(3                                                    , entries.Count);
+            Assert.AreEqual(4                                                    , entries.Count);
             Assert.AreEqual("nobody"                                             , entries[0].Publisher);
             Assert.AreEqual("Apache hadoop yarn: Yet another resource negotiator", entries[1].Title);
             Assert.AreEqual("KalavriShang-797"                                   , entries[2].Key);
