@@ -1,19 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.ComponentModel;
 
 namespace BibTeXLibrary
 {
-    using System.Linq;
+	using System.Linq;
     using System.Runtime.CompilerServices;
 
-    public class BibEntry
-    {
-        #region Private Field
-        /// <summary>
-        /// Entry's type
-        /// </summary>
-        private EntryType _type;
+    public class BibEntry : INotifyPropertyChanged
+	{
+		#region Events
+		/// <summary>
+		/// Property changed event.  Required by INotifyPropertyChanged.
+		/// </summary>
+		public event PropertyChangedEventHandler PropertyChanged;
+		#endregion
+
+		#region Private Field
+		/// <summary>
+		/// Key
+		/// </summary>
+		private string _key;
+
+		/// <summary>
+		/// Entry's type
+		/// </summary>
+		private EntryType _type;
 
         /// <summary>
         /// Store all tags
@@ -139,8 +152,12 @@ namespace BibTeXLibrary
         public string Title
         {
             get => this[GetFormattedName()];
-            set => this[GetFormattedName()] = value;
-        }
+            set
+            {
+                this[GetFormattedName()] = value;
+                NotifyPropertyChanged("Title");
+            }
+		}
 
         public string Volume
         {
@@ -184,12 +201,23 @@ namespace BibTeXLibrary
         /// <summary>
         /// Entry's key
         /// </summary>
-        public string Key { get; set; }
-        #endregion
+		public string Key
+		{
+			get
+			{
+				return _key;
+			}
+			set
+			{
+				_key = value;
+				NotifyPropertyChanged("Key");
+			}
+		}
+		#endregion
 
-        #region Public Method
+		#region Public Method
 
-        private string GetFormattedName([CallerMemberName] string propertyName = null)
+		private string GetFormattedName([CallerMemberName] string propertyName = null)
         {
             return propertyName.First().ToString().ToLower() + propertyName.Substring(1);
         }
@@ -242,10 +270,26 @@ namespace BibTeXLibrary
                 _tags[index.ToLower()] = value;
             }
         }
-        #endregion
-    }
+		#endregion
 
-    public enum EntryType
+		#region Property Changed Event Triggering
+		/// <summary>
+		/// Notify that a property changed.
+		/// 
+		/// INotifyPropertyChanged Interface
+		/// </summary>
+		/// <param name="info">Information.</param>
+		private void NotifyPropertyChanged(string info)
+		{
+			if (PropertyChanged != null)
+			{
+				PropertyChanged(this, new PropertyChangedEventArgs(info));
+			}
+		}
+		#endregion
+	}
+
+	public enum EntryType
     {
         Article,
         Book,
@@ -255,11 +299,13 @@ namespace BibTeXLibrary
         InCollection,
         InProceedings,
         Manual,
-        Mastersthesis,
+        MastersThesis,
         Misc,
+        Patent,
         PhDThesis,
         Proceedings,
         TechReport,
-        Unpublished
+        Unpublished,
+        WebHref,
     }
 }
