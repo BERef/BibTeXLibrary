@@ -288,24 +288,4 @@ namespace BibTeXLibrary
 		}
 		#endregion
 	}
-
-	public enum EntryType
-    {
-        Article,
-        Book,
-        Booklet,
-        Conference,
-        InBook,
-        InCollection,
-        InProceedings,
-        Manual,
-        MastersThesis,
-        Misc,
-        Patent,
-        PhDThesis,
-        Proceedings,
-        TechReport,
-        Unpublished,
-        WebHref,
-    }
 }
