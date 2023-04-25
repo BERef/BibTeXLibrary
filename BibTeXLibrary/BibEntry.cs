@@ -101,12 +101,6 @@ namespace BibTeXLibrary
             set => this[GetFormattedName()] = value;
         }
 
-        public string Mouth
-        {
-            get => this[GetFormattedName()];
-            set => this[GetFormattedName()] = value;
-        }
-
         public string Note
         {
             get => this[GetFormattedName()];
