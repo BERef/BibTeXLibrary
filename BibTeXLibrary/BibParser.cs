@@ -7,13 +7,14 @@ using System.Text;
 
 namespace BibTeXLibrary
 {
-    using Next = Tuple<ParserState, BibBuilderState>;
-    using Action = Dictionary<TokenType, Tuple<ParserState, BibBuilderState>>;
-    using StateMap = Dictionary<ParserState, Dictionary<TokenType, Tuple<ParserState, BibBuilderState>>>;
+    using Next      = Tuple<ParserState, BibBuilderState>;
+    using Action    = Dictionary<TokenType, Tuple<ParserState, BibBuilderState>>;
+    using StateMap  = Dictionary<ParserState, Dictionary<TokenType, Tuple<ParserState, BibBuilderState>>>;
 
     public sealed class BibParser : IDisposable
     {
-        #region Const Field
+        #region Const Fields
+
         /// <summary>
         /// State tranfer map
         /// curState --Token--> (nextState, BibBuilderAction)
@@ -57,9 +58,11 @@ namespace BibTeXLibrary
             {ParserState.OutEntry,    new Action {
                 { TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Create) } } },
         };
+
         #endregion
 
-        #region Private Field
+        #region Private Fields
+
         /// <summary>
         /// Input text stream.
         /// </summary>
@@ -74,45 +77,62 @@ namespace BibTeXLibrary
         /// Column counter.
         /// </summary>
         private int _colCount;
-        #endregion
 
-        #region Constructor
-        public BibParser(TextReader inputText)
+		#endregion
+
+		#region Constructors
+
+		/// <summary>
+		/// Constructor that reads a file using a StreamReader with default encoding.
+		/// </summary>
+		/// <param name="path">Full path and file name to the file to reader.</param>
+		public BibParser(string path) :
+            this(new StreamReader(path, Encoding.Default))
+		{
+		}
+
+		/// <summary>
+		/// Constructor with a reader.
+		/// </summary>
+		/// <param name="textReader">TextReader.</param>
+		public BibParser(TextReader textReader)
         {
-            _inputText = inputText;
+            _inputText = textReader;
         }
 
         #endregion
 
-        #region Public Static Method
+        #region Public Static Methods
+
         /// <summary>
         /// Parse by given input text reader.
         /// </summary>
         /// <param name="inputText"></param>
-        /// <returns></returns>
         public static List<BibEntry> Parse(TextReader inputText)
         {
-            using (var parser = new BibParser(inputText))
+            using (BibParser parser = new BibParser(inputText))
             {
                 return parser.GetAllResult();
             }
         }
+
         #endregion
 
-        #region Public Method
+        #region Public Methods
+
         /// <summary>
-        /// Get all result from Parser.
+        /// Get all results from the Parser.
         /// </summary>
-        /// <returns></returns>
         public List<BibEntry> GetAllResult()
         {
             return Parser().ToList();
         }
 
-        #endregion
+		#endregion
 
-        #region Private Method
-        private IEnumerable<BibEntry> Parser()
+		#region Private Methods
+
+		private IEnumerable<BibEntry> Parser()
         {
             try
             {
@@ -351,9 +371,11 @@ namespace BibTeXLibrary
             _colCount++;
             return _inputText.Read();
         }
+
         #endregion
 
         #region Impement Interface "IDisposable"
+
         /// <summary>
         /// Dispose stream resource.
         /// </summary>
@@ -361,32 +383,8 @@ namespace BibTeXLibrary
         {
             _inputText?.Dispose();
         }
+
         #endregion
-    }
 
-    enum ParserState
-    {
-        Begin,
-        InStart,
-        InEntry,
-        InKey,
-        OutKey,
-        InTagName,
-        InTagEqual,
-        InTagValue,
-        OutTagValue,
-        OutEntry
-    }
-
-    enum BibBuilderState
-    {
-        Create,
-        SetType,
-        SetKey,
-        SetTagName,
-        SetTagValue,
-        SetTag,
-        Build,
-        Skip
     }
 }
