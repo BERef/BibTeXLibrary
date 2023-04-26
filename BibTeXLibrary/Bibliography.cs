@@ -17,7 +17,7 @@ namespace BibTeXLibrary
 	{
 		#region Members
 
-		private ObservableCollection<BibEntry> _entries = new ObservableCollection<BibEntry>();
+		private ObservableCollection<BibEntry>	_entries			= new ObservableCollection<BibEntry>();
 
 		#endregion
 
@@ -28,6 +28,7 @@ namespace BibTeXLibrary
 		/// </summary>
 		public Bibliography()
 		{
+			 
 		}
 
 		#endregion
@@ -55,14 +56,28 @@ namespace BibTeXLibrary
 
 		#region Methods
 
+		/// <summary>
+		/// Read the bibliography file.
+		/// </summary>
+		/// <param name="path">Full path to the bibliography file.</param>
 		public void Read(string path)
 		{
-			BibParser parser = new BibParser(new StreamReader(path, Encoding.Default));
 			_entries.Clear();
+
+			BibParser parser = new BibParser(path);
+			
 			foreach (BibEntry bibEntry in parser.GetAllResult())
 			{
 				_entries.Add(bibEntry);
 			}
+		}
+
+		/// <summary>
+		/// Write the bibiography file.
+		/// </summary>
+		/// <param name="path">Full path to the bibiography file.</param>
+		public void Write(string path)
+		{
 		}
 
 		/// <summary>
