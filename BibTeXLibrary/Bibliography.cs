@@ -78,6 +78,14 @@ namespace BibTeXLibrary
 		/// <param name="path">Full path to the bibiography file.</param>
 		public void Write(string path)
 		{
+			using (StreamWriter streamWriter = new StreamWriter(path))
+			{
+				foreach (BibEntry bibEntry in _entries)
+				{
+					streamWriter.WriteLine();
+					streamWriter.Write(bibEntry.ToString());
+				}
+			}
 		}
 
 		/// <summary>
