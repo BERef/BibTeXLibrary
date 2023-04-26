@@ -84,6 +84,7 @@ namespace BibTeXLibrary
 				{
 					streamWriter.WriteLine();
 					streamWriter.Write(bibEntry.ToString());
+					streamWriter.Write(streamWriter.NewLine);
 				}
 			}
 		}
