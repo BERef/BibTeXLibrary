@@ -59,6 +59,8 @@
     <Compile Include="Token.cs" />
     <Compile Include="UnrecognizableCharacterException.cs" />
     <Compile Include="UnexpectedTokenException.cs" />
+    <Compile Include="WhiteSpace.cs" />
+    <Compile Include="WriteSettings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
