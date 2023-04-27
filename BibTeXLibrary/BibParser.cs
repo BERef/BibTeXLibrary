@@ -13,13 +13,19 @@ namespace BibTeXLibrary
 
     public sealed class BibParser : IDisposable
     {
-        #region Const Fields
+		#region Static Fields
 
-        /// <summary>
-        /// State tranfer map
-        /// curState --Token--> (nextState, BibBuilderAction)
-        /// </summary>
-        private static readonly StateMap StateMap = new StateMap
+		public static char[] _beginCommentCharacters = { '%' };
+
+		#endregion
+
+		#region Constant Fields
+
+		/// <summary>
+		/// State tranfer map
+		/// curState --Token--> (nextState, BibBuilderAction)
+		/// </summary>
+		private static readonly StateMap StateMap = new StateMap
         {
             {ParserState.Begin,       new Action {
                 { TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Create) } } },
@@ -330,7 +336,7 @@ namespace BibTeXLibrary
                     _colCount = 0;
                     _lineCount++;
                 }
-                else if (Config.BeginCommentCharacters.Any(item => item == c))
+                else if (_beginCommentCharacters.Any(item => item == c))
                 {
                     _colCount = 0;
                     _lineCount++;
@@ -342,9 +348,11 @@ namespace BibTeXLibrary
                     throw new UnrecognizableCharacterException(_lineCount, _colCount, c);
                 }
 
-                // Move to next char if possible
+                // Move to next char if possible.
                 if (_inputText.Peek() != -1 && !skipRead)
+                {
                     _inputText.Read();
+                }
 
                 skipRead = false;
                 // Don't move

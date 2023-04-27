@@ -15,11 +15,6 @@ namespace BibTeXLibrary
 	{
 		#region Members
 
-		private WhiteSpace	_whiteSpace					= WhiteSpace.Tab;
-		private int			_spacesPerTab				= 4;
-		private bool		_alignAtEquals				= true;
-		private int			_alignAtColumn				= 20;
-
 		#endregion
 
 		#region Construction
@@ -38,22 +33,55 @@ namespace BibTeXLibrary
 		/// <summary>
 		/// Type of white space character to use.
 		/// </summary>
-		public WhiteSpace WhiteSpace { get => _whiteSpace; set => _whiteSpace = value; }
+		[XmlAttribute("whitespace")]
+		public WhiteSpace WhiteSpace { get; set; } = WhiteSpace.Tab;
 
 		/// <summary>
 		/// The number of spaces per tab to use.
 		/// </summary>
-		public int SpacesPerTab { get => _spacesPerTab; set => _spacesPerTab = value; }
+		[XmlAttribute("spacespertab")]
+		public int SpacesPerTab { get; set; } = 4;
 
 		/// <summary>
 		/// Specifies if the tag values should be aligned at the equal sign.
 		/// </summary>
-		public bool AlignAtEquals { get => _alignAtEquals; set => _alignAtEquals = value; }
+		[XmlAttribute("alignatequals")]
+		public bool AlignAtEquals { get; set; } = true;
 
 		/// <summary>
 		/// Specifies the number of columns before the equal sign when aligning at the equal sign.
 		/// </summary>
-		public int AlignAtColumn { get => _alignAtColumn; set => _alignAtColumn = value; }
+		[XmlAttribute("alignatcolumn")]
+		public int AlignAtColumn { get; set; } = 20;
+
+		/// <summary>
+		/// New line character or sequence.
+		/// </summary>
+		[XmlIgnore()]
+		public string NewLine { get; set; } = "\n";
+
+		[XmlIgnore()]
+		public string LineIndent
+		{
+			get
+			{
+				switch (this.WhiteSpace)
+				{
+					case WhiteSpace.Tab:
+					{
+						return "\t";
+					}
+					case WhiteSpace.Space:
+					{
+						return new string(' ', this.SpacesPerTab);
+					}
+					default:
+					{
+						throw new InvalidEnumArgumentException("Invalid \"WhiteSpace\" value.");
+					}
+				}
+			}
+		}
 
 		#endregion
 

@@ -51,7 +51,6 @@
     <Compile Include="BibEntry.cs" />
     <Compile Include="Bibliography.cs" />
     <Compile Include="BibParser.cs" />
-    <Compile Include="Config.cs" />
     <Compile Include="EntryType.cs" />
     <Compile Include="ParseErrorException.cs" />
     <Compile Include="ParserState.cs" />

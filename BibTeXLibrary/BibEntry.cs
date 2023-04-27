@@ -217,26 +217,34 @@ namespace BibTeXLibrary
         }
 
         /// <summary>
-        /// To BibTeX entry
+        /// Convert the BibTeX entry to a string.
         /// </summary>
-        /// <returns></returns>
         public override string ToString()
+        {
+            return ToString(new WriteSettings() { WhiteSpace = WhiteSpace.Space, SpacesPerTab = 2, AlignAtEquals = false });
+        }
+
+		/// <summary>
+		/// Convert the BibTeX entry to a string.
+		/// </summary>
+		/// <param name="writeSettings">The settings for writing the bibliography file.</param>
+		public string ToString(WriteSettings writeSettings)
         {
             var bib = new StringBuilder("@");
             bib.Append(Type);
             bib.Append('{');
             bib.Append(Key);
             bib.Append(",");
-            bib.Append(Config.LineFeed);
+            bib.Append(writeSettings.NewLine);
 
             foreach (var tag in _tags)
             {
-                bib.Append(Config.Retract);
+                bib.Append(writeSettings.LineIndent);
                 bib.Append(tag.Key);
                 bib.Append(" = {");
                 bib.Append(tag.Value);
                 bib.Append("},");
-                bib.Append(Config.LineFeed);
+                bib.Append(writeSettings.NewLine);
             }
 
             bib.Append("}");
@@ -246,6 +254,7 @@ namespace BibTeXLibrary
         #endregion
 
         #region Public Indexer
+
         /// <summary>
         /// Get value by given tagname(index) or
         /// create new tag by index and value.
@@ -264,6 +273,7 @@ namespace BibTeXLibrary
                 _tags[index.ToLower()] = value;
             }
         }
+
 		#endregion
 
 		#region Property Changed Event Triggering

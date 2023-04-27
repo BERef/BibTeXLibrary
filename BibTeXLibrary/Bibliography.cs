@@ -11,13 +11,13 @@ using System.Xml.Serialization;
 namespace BibTeXLibrary
 {
 	/// <summary>
-	/// 
+	/// Internal representation of a bib file.
 	/// </summary>
 	public class Bibliography
 	{
 		#region Members
 
-		private ObservableCollection<BibEntry>	_entries			= new ObservableCollection<BibEntry>();
+		private BindingList<BibEntry>			_entries		= new BindingList<BibEntry>();
 
 		#endregion
 
@@ -27,8 +27,7 @@ namespace BibTeXLibrary
 		/// Default constructor.
 		/// </summary>
 		public Bibliography()
-		{
-			 
+		{	 
 		}
 
 		#endregion
@@ -40,7 +39,7 @@ namespace BibTeXLibrary
 		/// BibTeX entries.
 		/// </summary>
 		[XmlIgnore()]
-		public ObservableCollection<BibEntry> Entries
+		public BindingList<BibEntry> Entries
 		{
 			get
 			{
@@ -72,18 +71,29 @@ namespace BibTeXLibrary
 			}
 		}
 
+
 		/// <summary>
 		/// Write the bibiography file.
 		/// </summary>
 		/// <param name="path">Full path to the bibiography file.</param>
 		public void Write(string path)
 		{
+			Write(path, new WriteSettings());
+		}
+
+		/// <summary>
+		/// Write the bibiography file.
+		/// </summary>
+		/// <param name="path">Full path to the bibiography file.</param>
+		/// <param name="writeSettings">The settings for writing the bibliography file.</param>
+		public void Write(string path, WriteSettings writeSettings)
+		{
 			using (StreamWriter streamWriter = new StreamWriter(path))
 			{
 				foreach (BibEntry bibEntry in _entries)
 				{
 					streamWriter.WriteLine();
-					streamWriter.Write(bibEntry.ToString());
+					streamWriter.Write(bibEntry.ToString(writeSettings));
 					streamWriter.Write(streamWriter.NewLine);
 				}
 			}
