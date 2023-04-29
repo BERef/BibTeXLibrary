@@ -17,7 +17,10 @@ namespace BibTeXLibrary
 	{
 		#region Members
 
-		private BindingList<BibEntry>			_entries		= new BindingList<BibEntry>();
+		private static string					_bibInitializationFileName		= "Bib Entry Initialization.xml";
+
+		private BindingList<BibEntry>			_entries						= new BindingList<BibEntry>();
+		private BibEntryInitialization			_bibEntryInitialization;
 
 		#endregion
 
@@ -56,13 +59,24 @@ namespace BibTeXLibrary
 		#region Methods
 
 		/// <summary>
+		/// Gets the path of the Bib Entry Initialization file.
+		/// </summary>
+		/// <param name="projectFilePath">Path to the main project file.</param>
+		private string GetBibEntryInitializationPath(string projectFilePath)
+		{
+			return Path.Combine(Path.GetDirectoryName(projectFilePath), _bibInitializationFileName);
+		}
+
+		/// <summary>
 		/// Read the bibliography file.
 		/// </summary>
 		/// <param name="path">Full path to the bibliography file.</param>
 		public void Read(string path)
 		{
-			_entries.Clear();
+			string bibInitializationPath	= GetBibEntryInitializationPath(path);
+			_bibEntryInitialization			= BibEntryInitialization.Deserialize(bibInitializationPath);
 
+			_entries.Clear();
 			BibParser parser = new BibParser(path);
 			
 			foreach (BibEntry bibEntry in parser.GetAllResult())
@@ -70,7 +84,6 @@ namespace BibTeXLibrary
 				_entries.Add(bibEntry);
 			}
 		}
-
 
 		/// <summary>
 		/// Write the bibiography file.
@@ -88,8 +101,7 @@ namespace BibTeXLibrary
 		/// <param name="writeSettings">The settings for writing the bibliography file.</param>
 		public void Write(string path, WriteSettings writeSettings)
 		{
-			BibEntryInitialization bibEntryInitialization = new BibEntryInitialization();
-			bibEntryInitialization.Serialize(path + "inial.xml");
+			//_bibEntryInitialization.Serialize(GetBibEntryInitializationPath(path));
 
 			using (StreamWriter streamWriter = new StreamWriter(path))
 			{

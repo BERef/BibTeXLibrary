@@ -29,13 +29,8 @@ namespace BibTeXLibrary
 
 		#region Fields
 
-		private SerializableDictionary<string, string> _typeToTemplateMap = new SerializableDictionary<string, string>() { { "entry1", "value1" }, { "entry2", "value2" } };
-		private SerializableDictionary<string, List<string>> _templates = new SerializableDictionary<string, List<string>>() {
-			{ "entry1", new List<string>(){"value1", "value2" } },
-			{ "entry2", new List<string>(){"value1", "value2" } }
-		};
-
-		
+		private SerializableDictionary<string, string> _typeToTemplateMap;
+		private SerializableDictionary<string, List<string>> _templates;
 
 		#endregion
 
