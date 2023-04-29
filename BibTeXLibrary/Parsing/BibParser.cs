@@ -142,15 +142,15 @@ namespace BibTeXLibrary
         {
             try
             {
-                var curState = ParserState.Begin;
-                var nextState = ParserState.Begin;
+				ParserState curState = ParserState.Begin;
+				ParserState nextState = ParserState.Begin;
 
-                BibEntry bib = null;
-                var tagValueBuilder = new StringBuilder();
-                var tagName = "";
+                BibEntry bibEntry               = null;
+				StringBuilder tagValueBuilder   = new StringBuilder();
+                string tagName                  = "";
 
                 // Fetch token from Tokenizer and build BibEntry
-                foreach (var token in Tokenizer())
+                foreach (Token token in Tokenizer())
                 {
                     // Transfer state
                     if (StateMap[curState].ContainsKey(token.Type))
@@ -167,17 +167,17 @@ namespace BibTeXLibrary
                     switch (StateMap[curState][token.Type].Item2)
                     {
                         case BibBuilderState.Create:
-                            bib = new BibEntry();
+                            bibEntry = new BibEntry();
                             break;
 
                         case BibBuilderState.SetType:
-                            Debug.Assert(bib != null, "bib != null");
-                            bib.Type = token.Value;
+                            Debug.Assert(bibEntry != null, "bib != null");
+                            bibEntry.Type = token.Value;
                             break;
 
                         case BibBuilderState.SetKey:
-                            Debug.Assert(bib != null, "bib != null");
-                            bib.Key = token.Value;
+                            Debug.Assert(bibEntry != null, "bib != null");
+                            bibEntry.Key = token.Value;
                             break;
 
                         case BibBuilderState.SetTagName:
@@ -189,8 +189,8 @@ namespace BibTeXLibrary
                             break;
 
                         case BibBuilderState.SetTag:
-                            Debug.Assert(bib != null, "bib != null");
-                            bib[tagName] = tagValueBuilder.ToString();
+                            Debug.Assert(bibEntry != null, "bib != null");
+                            bibEntry[tagName] = tagValueBuilder.ToString();
                             tagValueBuilder.Clear();
                             tagName = string.Empty;
                             break;
@@ -198,20 +198,19 @@ namespace BibTeXLibrary
                         case BibBuilderState.Build:
                             if (tagName != string.Empty)
                             {
-                                Debug.Assert(bib != null, "bib != null");
-                                bib[tagName] = tagValueBuilder.ToString();
+                                Debug.Assert(bibEntry != null, "bib != null");
+                                bibEntry[tagName] = tagValueBuilder.ToString();
                                 tagValueBuilder.Clear();
                                 tagName = string.Empty;
                             }
-                            yield return bib;
+                            yield return bibEntry;
                             break;
                     }
                     curState = nextState;
                 }
                 if (curState != ParserState.OutEntry)
                 {
-                    var expected = from pair in StateMap[curState]
-                        select pair.Key;
+                    var expected = from pair in StateMap[curState] select pair.Key;
                     throw new UnexpectedTokenException(_lineCount, _colCount, TokenType.EOF, expected.ToArray());
                 }
             }
@@ -356,8 +355,7 @@ namespace BibTeXLibrary
 
                 skipRead = false;
                 // Don't move
-                ContinueExcute:
-                ;
+                ContinueExcute:;
             }
         }
 
@@ -394,5 +392,5 @@ namespace BibTeXLibrary
 
         #endregion
 
-    }
-}
+    } // End class.
+} // End namespace.

@@ -88,6 +88,9 @@ namespace BibTeXLibrary
 		/// <param name="writeSettings">The settings for writing the bibliography file.</param>
 		public void Write(string path, WriteSettings writeSettings)
 		{
+			BibEntryInitialization bibEntryInitialization = new BibEntryInitialization();
+			bibEntryInitialization.Serialize(path + "inial.xml");
+
 			using (StreamWriter streamWriter = new StreamWriter(path))
 			{
 				foreach (BibEntry bibEntry in _entries)

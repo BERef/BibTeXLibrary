@@ -1,40 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.Collections.Specialized;
 
 namespace BibTeXLibrary
 {
+	using System.Collections;
 	using System.Linq;
     using System.Runtime.CompilerServices;
 
     public class BibEntry : INotifyPropertyChanged
 	{
 		#region Events
+
 		/// <summary>
 		/// Property changed event.  Required by INotifyPropertyChanged.
 		/// </summary>
 		public event PropertyChangedEventHandler PropertyChanged;
+
 		#endregion
 
-		#region Private Field
+		#region Private Fields
+
 		/// <summary>
 		/// Key
 		/// </summary>
 		private string _key;
 
-		/// <summary>
-		/// Entry's type
-		/// </summary>
-		private EntryType _type;
-
         /// <summary>
         /// Store all tags
         /// </summary>
-        private readonly Dictionary<string, string> _tags = new Dictionary<string, string>();
+        private readonly OrderedDictionary _tags = new OrderedDictionary();
+
         #endregion
 
-        #region Public Property
+        #region Public Properties
+
         public string Address
         {
             get => this[GetFormattedName()];
@@ -180,17 +183,7 @@ namespace BibTeXLibrary
         /// <summary>
         /// Entry's type
         /// </summary>
-        public string Type
-        {
-            get
-            {
-                return Enum.GetName(typeof(EntryType), _type);
-            }
-            set
-            {
-                _type = (EntryType)Enum.Parse(typeof(EntryType), value, true);
-            }
-        }
+        public string Type { get; set; }
 
         /// <summary>
         /// Entry's key
@@ -207,6 +200,7 @@ namespace BibTeXLibrary
 				NotifyPropertyChanged("Key");
 			}
 		}
+
 		#endregion
 
 		#region Public Method
@@ -221,7 +215,7 @@ namespace BibTeXLibrary
         /// </summary>
         public override string ToString()
         {
-            return ToString(new WriteSettings() { WhiteSpace = WhiteSpace.Space, SpacesPerTab = 2, AlignAtEquals = false });
+            return ToString(new WriteSettings() { WhiteSpace = WhiteSpace.Space, TabSize = 2, AlignTagValues = false });
         }
 
 		/// <summary>
@@ -230,23 +224,36 @@ namespace BibTeXLibrary
 		/// <param name="writeSettings">The settings for writing the bibliography file.</param>
 		public string ToString(WriteSettings writeSettings)
         {
+            // Build the entry opening and key.
             var bib = new StringBuilder("@");
-            bib.Append(Type);
-            bib.Append('{');
+            bib.Append(this.Type);
+            bib.Append("{");
             bib.Append(Key);
             bib.Append(",");
             bib.Append(writeSettings.NewLine);
 
-            foreach (var tag in _tags)
-            {
-                bib.Append(writeSettings.LineIndent);
-                bib.Append(tag.Key);
-                bib.Append(" = {");
-                bib.Append(tag.Value);
+			// Write all the tags.
+			IDictionaryEnumerator tagEnumerator = _tags.GetEnumerator();
+			while (tagEnumerator.MoveNext())
+			{
+                // Initial line indent and tag key.
+                bib.Append(writeSettings.Indent);
+                //bib.Append(tag.Key);
+                bib.Append(tagEnumerator.Key.ToString());
+
+                // Add the space between the key and equal sign.
+                bib.Append(writeSettings.GetInterTagSpacing(tagEnumerator.Key.ToString()));
+
+                // Add the tag value.
+                bib.Append("= {");
+                bib.Append(tagEnumerator.Value.ToString());
                 bib.Append("},");
+
+                // End the line.
                 bib.Append(writeSettings.NewLine);
             }
 
+            // Closing bracket and end of entry.
             bib.Append("}");
 
             return bib.ToString();
@@ -266,7 +273,7 @@ namespace BibTeXLibrary
             get
             {
                 index = index.ToLower();
-                return _tags.ContainsKey(index) ? _tags[index] : "";
+                return _tags.Contains(index) ? _tags[index].ToString() : "";
             }
             set
             {
@@ -277,6 +284,7 @@ namespace BibTeXLibrary
 		#endregion
 
 		#region Property Changed Event Triggering
+
 		/// <summary>
 		/// Notify that a property changed.
 		/// 
@@ -290,6 +298,8 @@ namespace BibTeXLibrary
 				PropertyChanged(this, new PropertyChangedEventArgs(info));
 			}
 		}
+
 		#endregion
-	}
-}
+
+	} // End class.
+} // End namespace.

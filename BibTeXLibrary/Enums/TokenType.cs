@@ -11,26 +11,30 @@ namespace BibTeXLibrary
 	/// the number of items in the enumeration changes.  The "Length" enumeration must be the last item.
 	/// for (int i = 0; i &lt; (int)EnumType.Length; i++) {...}
 	/// </summary>
-	public enum EntryType
+	public enum TokenType
 	{
-		/// <summary>Article</summary>
-		[Description("Article")]
-		Article,
-		Book,
-		Booklet,
-		Conference,
-		InBook,
-		InCollection,
-		InProceedings,
-		Manual,
-		MastersThesis,
-		Misc,
-		Patent,
-		PhDThesis,
-		Proceedings,
-		TechReport,
-		Unpublished,
-		WebHref
+		/// <summary>Start.</summary>
+		[Description("Start")]
+		Start,
+
+		Name,
+		String,
+
+		Quotation,
+
+		LeftBrace,
+		RightBrace,
+
+		Equal,
+		Comma,
+
+		Concatenation,
+
+		EOF,
+
+		/// <summary>The number of types/items in the enumeration.</summary>
+		[Description("Length")]
+		Length
 
 	} // End enum.
 } // End namespace.
