@@ -13,26 +13,49 @@ namespace BibTeXLibrary
 	/// </summary>
 	public enum TokenType
 	{
+		/// <summary>Comma.</summary>
+		[Description("Comma")]
+		Comma,
+
+		/// <summary>Comment.</summary>
+		[Description("Comment")]
+		Comment,
+
+		/// <summary>Concatenation.</summary>
+		[Description("Concatenation")]
+		Concatenation,
+
+		/// <summary>Equal.</summary>
+		[Description("Equal")]
+		Equal,
+
+		/// <summary>End of File.</summary>
+		[Description("End of File")]
+		EOF,
+
+		/// <summary>LeftBrace.</summary>
+		[Description("LeftBrace")]
+		LeftBrace,
+
+		/// <summary>Name.</summary>
+		[Description("Name")]
+		Name,
+
+		/// <summary>Quotation.</summary>
+		[Description("Quotation")]
+		Quotation,
+
+		/// <summary>RightBrace.</summary>
+		[Description("RightBrace")]
+		RightBrace,
+
 		/// <summary>Start.</summary>
 		[Description("Start")]
 		Start,
 
-		Name,
+		/// <summary>String.</summary>
+		[Description("String")]
 		String,
-
-		Quotation,
-
-		LeftBrace,
-		RightBrace,
-
-		Equal,
-		Comma,
-
-		Concatenation,
-
-		Comment,
-
-		EOF,
 
 		/// <summary>The number of types/items in the enumeration.</summary>
 		[Description("Length")]

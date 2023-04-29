@@ -49,24 +49,36 @@ namespace BibTeXLibrary
 
         #region Public Properties
 
+		/// <summary>
+		/// Address.
+		/// </summary>
         public string Address
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
+		/// <summary>
+		/// Annote.
+		/// </summary>
         public string Annote
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
+		/// <summary>
+		/// Author.
+		/// </summary>
         public string Author
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
+		/// <summary>
+		/// Booktitle.
+		/// </summary>
         public string Booktitle
         {
             get => this[GetFormattedName()];
@@ -215,6 +227,11 @@ namespace BibTeXLibrary
 		#endregion
 
 		#region Private Methods
+
+		/// <summary>
+		/// Uses the calling member nameto create a lowercase name to use as an index.
+		/// </summary>
+		/// <param name="propertyName">Name of the property/calling method.</param>
 		private string GetFormattedName([CallerMemberName] string propertyName = null)
 		{
 			return propertyName.First().ToString().ToLower() + propertyName.Substring(1);
@@ -276,7 +293,7 @@ namespace BibTeXLibrary
                 //bib.Append("},");
 
                 // End the line.
-                bib.Append(writeSettings.NewLine.ToString());
+                bib.Append(writeSettings.NewLine);
             }
 
             // Closing bracket and end of entry.
@@ -287,26 +304,41 @@ namespace BibTeXLibrary
         }
         #endregion
 
-        #region Public Indexer
+        #region Public Tag Value
 
         /// <summary>
-        /// Get value by given tagname(index) or
-        /// create new tag by index and value.
+        /// Get value by given tag name (index) or create new tag by index and value.
         /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        public string this[string index]
+        /// <param name="tagName">Tag name.</param>
+        public string this[string tagName]
         {
             get
             {
-                index = index.ToLower();
-                return _tags.Contains(index) ? _tags[index].ToString() : "";
+                tagName = tagName.ToLower();
+                return _tags.Contains(tagName) ? ((TagValue)_tags[tagName]).Content : "";
             }
             set
             {
-                _tags[index.ToLower()] = value;
+				if (_tags.Contains(tagName))
+				{
+					((TagValue)_tags[tagName.ToLower()]).Content = value;
+				}
+				else
+				{
+					_tags[tagName.ToLower()] = new TagValue(value);
+				}
             }
         }
+
+		public TagValue GetTagValue(string tagName)
+		{
+			return (TagValue)_tags[tagName.ToLower()];
+		}
+
+		public void SetTagValue(string tagName, TagValue tagValue)
+		{
+			_tags[tagName.ToLower()] = tagValue;
+		}
 
 		#endregion
 
@@ -320,10 +352,7 @@ namespace BibTeXLibrary
 		/// <param name="info">Information.</param>
 		private void NotifyPropertyChanged(string info)
 		{
-			if (PropertyChanged != null)
-			{
-				PropertyChanged(this, new PropertyChangedEventArgs(info));
-			}
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 		}
 
 		#endregion

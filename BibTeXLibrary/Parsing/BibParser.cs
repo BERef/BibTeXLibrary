@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 
 namespace BibTeXLibrary
@@ -209,12 +210,13 @@ namespace BibTeXLibrary
         {
             try
             {
-				ParserState curState			= ParserState.Begin;
-				ParserState nextState			= ParserState.Begin;
+				ParserState		curState			= ParserState.Begin;
+				ParserState		nextState			= ParserState.Begin;
 
-                BibEntry bibEntry				= null;
-				StringBuilder tagValueBuilder	= new StringBuilder();
-                string tagName					= "";
+                BibEntry		bibEntry			= null;
+                string			tagName				= "";
+				bool			tagValueIsString	= false;
+				StringBuilder	tagValueBuilder		= new StringBuilder();
 
                 // Fetch token from Tokenizer and build BibEntry.
                 foreach (Token token in Tokenize())
@@ -256,12 +258,16 @@ namespace BibTeXLibrary
                             break;
 
                         case BibBuilderState.SetTagValue:
-                            tagValueBuilder.Append(token.Value);
+							if (token.Type != TokenType.Concatenation)
+							{
+								tagValueIsString = token.Type == TokenType.String;
+							}
+							tagValueBuilder.Append(token.Value);
                             break;
 
                         case BibBuilderState.SetTag:
                             Debug.Assert(bibEntry != null, "bib != null");
-                            bibEntry[tagName] = tagValueBuilder.ToString();
+							bibEntry.SetTagValue(tagName, new TagValue(tagValueBuilder.ToString(), tagValueIsString));
                             tagValueBuilder.Clear();
                             tagName = string.Empty;
                             break;
