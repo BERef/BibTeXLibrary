@@ -287,10 +287,8 @@ namespace BibTeXLibrary
                 bib.Append(writeSettings.GetInterTagSpacing(tagEnumerator.Key.ToString()));
 
 				// Add the tag value.
-				//bib.Append("= {");
 				bib.Append("= ");
 				bib.Append(tagEnumerator.Value.ToString());
-                //bib.Append("},");
 
                 // End the line.
                 bib.Append(writeSettings.NewLine);
