@@ -20,7 +20,7 @@ namespace BibTeXLibrary
 		private static string					_bibInitializationFileName		= "Bib Entry Initialization.xml";
 
 		private BindingList<BibEntry>			_entries						= new BindingList<BibEntry>();
-		private BibEntryInitialization			_bibEntryInitialization;
+		private BibEntryInitializer			_bibEntryInitialization;
 
 		#endregion
 
@@ -74,7 +74,7 @@ namespace BibTeXLibrary
 		public void Read(string path)
 		{
 			string bibInitializationPath	= GetBibEntryInitializationPath(path);
-			_bibEntryInitialization			= BibEntryInitialization.Deserialize(bibInitializationPath);
+			_bibEntryInitialization			= BibEntryInitializer.Deserialize(bibInitializationPath);
 
 			_entries.Clear();
 			BibParser parser = new BibParser(path);

@@ -13,7 +13,7 @@ namespace BibTeXLibrary
 	/// 
 	/// </summary>
 	[XmlRoot("bibentryinitialization")]
-	public class BibEntryInitialization
+	public class BibEntryInitializer
 	{
 		#region Enumerations
 
@@ -39,7 +39,7 @@ namespace BibTeXLibrary
 		/// <summary>
 		/// Default constructor.
 		/// </summary>
-		public BibEntryInitialization()
+		public BibEntryInitializer()
 		{
 		}
 
@@ -81,9 +81,9 @@ namespace BibTeXLibrary
 		/// Create an instance from a file.
 		/// </summary>
 		/// <param name="path">The file to read from.</param>
-		public static BibEntryInitialization Deserialize(string path)
+		public static BibEntryInitializer Deserialize(string path)
 		{
-			return Serialization.DeserializeObject<BibEntryInitialization>(path);
+			return Serialization.DeserializeObject<BibEntryInitializer>(path);
 		}
 
 		#endregion
