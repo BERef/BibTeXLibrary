@@ -22,6 +22,17 @@ namespace BibTeXLibrary
 
 		#endregion
 
+		#region Construction
+
+        /// <summary>
+        /// Default contructor.
+        /// </summary>
+        public BibEntry()
+        {
+        }
+
+		#endregion
+
 		#region Private Fields
 
 		/// <summary>
@@ -203,12 +214,26 @@ namespace BibTeXLibrary
 
 		#endregion
 
-		#region Public Method
-
+		#region Private Methods
 		private string GetFormattedName([CallerMemberName] string propertyName = null)
-        {
-            return propertyName.First().ToString().ToLower() + propertyName.Substring(1);
-        }
+		{
+			return propertyName.First().ToString().ToLower() + propertyName.Substring(1);
+		}
+
+		#endregion
+
+		#region Public Methods
+
+		/// <summary>
+		/// Initialize with a set of (ordered) tags.
+		/// </summary>
+		public void Initialize(List<string> tags)
+		{
+			foreach (string tag in tags)
+			{
+				this[tag] = "";
+			}
+		}
 
         /// <summary>
         /// Convert the BibTeX entry to a string.
@@ -244,19 +269,21 @@ namespace BibTeXLibrary
                 // Add the space between the key and equal sign.
                 bib.Append(writeSettings.GetInterTagSpacing(tagEnumerator.Key.ToString()));
 
-                // Add the tag value.
-                bib.Append("= {");
-                bib.Append(tagEnumerator.Value.ToString());
-                bib.Append("},");
+				// Add the tag value.
+				//bib.Append("= {");
+				bib.Append("= ");
+				bib.Append(tagEnumerator.Value.ToString());
+                //bib.Append("},");
 
                 // End the line.
-                bib.Append(writeSettings.NewLine);
+                bib.Append(writeSettings.NewLine.ToString());
             }
 
             // Closing bracket and end of entry.
             bib.Append("}");
+			bib.Append(writeSettings.NewLine);
 
-            return bib.ToString();
+			return bib.ToString();
         }
         #endregion
 

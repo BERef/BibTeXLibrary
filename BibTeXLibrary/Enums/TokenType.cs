@@ -30,6 +30,8 @@ namespace BibTeXLibrary
 
 		Concatenation,
 
+		Comment,
+
 		EOF,
 
 		/// <summary>The number of types/items in the enumeration.</summary>

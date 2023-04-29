@@ -7,11 +7,11 @@ using System.Text;
 
 namespace BibTeXLibrary
 {
-    using Next      = Tuple<ParserState, BibBuilderState>;
-    using Action    = Dictionary<TokenType, Tuple<ParserState, BibBuilderState>>;
-    using StateMap  = Dictionary<ParserState, Dictionary<TokenType, Tuple<ParserState, BibBuilderState>>>;
+	using Action	= Dictionary<TokenType, Tuple<ParserState, BibBuilderState>>;
+	using Next		= Tuple<ParserState, BibBuilderState>;
+	using StateMap	= Dictionary<ParserState, Dictionary<TokenType, Tuple<ParserState, BibBuilderState>>>;
 
-    public sealed class BibParser : IDisposable
+	public sealed class BibParser : IDisposable
     {
 		#region Static Fields
 
@@ -28,28 +28,41 @@ namespace BibTeXLibrary
 		private static readonly StateMap StateMap = new StateMap
         {
             {ParserState.Begin,       new Action {
-                { TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Create) } } },
+                { TokenType.Comment,       new Next(ParserState.InHeader,    BibBuilderState.SetHeader) }, 
+                { TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Create) }
+            } },
 
-            {ParserState.InStart,     new Action {
-                { TokenType.Name,          new Next(ParserState.InEntry,     BibBuilderState.SetType) } } },
+			{ParserState.InHeader,    new Action {
+				{ TokenType.Comment,       new Next(ParserState.InHeader,    BibBuilderState.SetHeader) },
+				{ TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Create) }
+			} },
+
+			{ParserState.InStart,     new Action {
+                { TokenType.Name,          new Next(ParserState.InEntry,     BibBuilderState.SetType) }
+            } },
 
             {ParserState.InEntry,     new Action {
-                { TokenType.LeftBrace,     new Next(ParserState.InKey,       BibBuilderState.Skip) } } },
+                { TokenType.LeftBrace,     new Next(ParserState.InKey,       BibBuilderState.Skip) }
+            } },
 
             {ParserState.InKey,       new Action {
                 { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.Build) },
                 { TokenType.Name,          new Next(ParserState.OutKey,      BibBuilderState.SetKey) },
-                { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.Skip) } } },
+                { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.Skip) }
+            } },
 
             {ParserState.OutKey,      new Action {
-                { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.Skip) } } },
+                { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.Skip) }
+            } },
 
             {ParserState.InTagName,   new Action {
                 { TokenType.Name,          new Next(ParserState.InTagEqual,  BibBuilderState.SetTagName) },
-                { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.Build) } } },
+                { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.Build) }
+            } },
 
             {ParserState.InTagEqual,  new Action {
-                { TokenType.Equal,         new Next(ParserState.InTagValue,  BibBuilderState.Skip) } } },
+                { TokenType.Equal,         new Next(ParserState.InTagValue,  BibBuilderState.Skip) }
+             } },
 
             {ParserState.InTagValue,  new Action {
                 { TokenType.String,        new Next(ParserState.OutTagValue, BibBuilderState.SetTagValue) },
@@ -59,11 +72,19 @@ namespace BibTeXLibrary
             {ParserState.OutTagValue, new Action {
                 { TokenType.Concatenation, new Next(ParserState.InTagValue,  BibBuilderState.Skip) },
                 { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.SetTag) },
-                { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.Build) } } },
+                { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.Build) }
+             } },
 
             {ParserState.OutEntry,    new Action {
-                { TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Create) } } },
-        };
+                { TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Create) },
+                { TokenType.Comment,       new Next(ParserState.InComment,   BibBuilderState.Skip) }, 
+            } },
+
+            {ParserState.InComment,    new Action {
+                { TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Create) },
+                { TokenType.Comment,       new Next(ParserState.InComment,   BibBuilderState.Skip) }, 
+            } },
+		};
 
         #endregion
 
@@ -84,6 +105,30 @@ namespace BibTeXLibrary
         /// </summary>
         private int _colCount;
 
+        /// <summary>
+        /// File header.
+        /// </summary>
+        private List<string> _header								= new List<string>();
+
+        /// <summary>
+        /// Initializer for BibEntrys.  Used  to allow a defined order of tags.
+        /// </summary>
+        private BibEntryInitialization _bibEntryInitialization		= new BibEntryInitialization();
+
+		#endregion
+
+		#region Public Fields
+
+		/// <summary>
+		/// Initializer for BibEntrys.  Used  to allow a defined order of tags.
+		/// </summary>
+		public BibEntryInitialization BibEntryInitializer { get => _bibEntryInitialization; set => _bibEntryInitialization = value; }
+
+        /// <summary>
+        /// Bibliography header text.
+        /// </summary>
+		public List<string> Header { get => _header; set => _header = value; }
+
 		#endregion
 
 		#region Constructors
@@ -98,6 +143,15 @@ namespace BibTeXLibrary
 		}
 
 		/// <summary>
+		/// Constructor that reads a file using a StreamReader with default encoding.
+		/// </summary>
+		/// <param name="path">Full path and file name to the file to reader.</param>
+		public BibParser(string path, BibEntryInitialization bibEntryInitialization) :
+			this(new StreamReader(path, Encoding.Default), bibEntryInitialization)
+		{
+		}
+
+		/// <summary>
 		/// Constructor with a reader.
 		/// </summary>
 		/// <param name="textReader">TextReader.</param>
@@ -106,19 +160,31 @@ namespace BibTeXLibrary
             _inputText = textReader;
         }
 
-        #endregion
+		/// <summary>
+		/// Constructor with a reader.
+		/// </summary>
+		/// <param name="textReader">TextReader.</param>
+		public BibParser(TextReader textReader, BibEntryInitialization bibEntryInitialization)
+		{
+			_inputText              = textReader;
+            _bibEntryInitialization = bibEntryInitialization;
+		}
 
-        #region Public Static Methods
 
-        /// <summary>
-        /// Parse by given input text reader.
-        /// </summary>
-        /// <param name="inputText"></param>
-        public static List<BibEntry> Parse(TextReader inputText)
+		#endregion
+
+		#region Public Static Methods
+
+		/// <summary>
+		/// Parse by given input text reader.
+		/// </summary>
+		/// <param name="inputText"></param>
+		public static Tuple<List<string>, List<BibEntry>> Parse(TextReader inputText)
         {
             using (BibParser parser = new BibParser(inputText))
             {
-                return parser.GetAllResult();
+				List<BibEntry> entries = parser.Parse().ToList();
+				return new Tuple<List<string>, List<BibEntry>>(parser._header, entries);
             }
         }
 
@@ -129,43 +195,47 @@ namespace BibTeXLibrary
         /// <summary>
         /// Get all results from the Parser.
         /// </summary>
-        public List<BibEntry> GetAllResult()
+        public Tuple<List<string>, List<BibEntry>> GetAllResults()
         {
-            return Parser().ToList();
+			List<BibEntry> entries = Parse().ToList();
+			return new Tuple<List<string>, List<BibEntry>>(_header, entries);
         }
 
 		#endregion
 
 		#region Private Methods
 
-		private IEnumerable<BibEntry> Parser()
+		private IEnumerable<BibEntry> Parse()
         {
             try
             {
-				ParserState curState = ParserState.Begin;
-				ParserState nextState = ParserState.Begin;
+				ParserState curState			= ParserState.Begin;
+				ParserState nextState			= ParserState.Begin;
 
-                BibEntry bibEntry               = null;
-				StringBuilder tagValueBuilder   = new StringBuilder();
-                string tagName                  = "";
+                BibEntry bibEntry				= null;
+				StringBuilder tagValueBuilder	= new StringBuilder();
+                string tagName					= "";
 
-                // Fetch token from Tokenizer and build BibEntry
-                foreach (Token token in Tokenizer())
+                // Fetch token from Tokenizer and build BibEntry.
+                foreach (Token token in Tokenize())
                 {
                     // Transfer state
                     if (StateMap[curState].ContainsKey(token.Type))
-                    {
-                        nextState = StateMap[curState][token.Type].Item1;
-                    }
-                    else
-                    {
-                        var expected = from pair in StateMap[curState]
-                            select pair.Key;
+					{
+						nextState = StateMap[curState][token.Type].Item1;
+					}
+					else
+					{
+                        var expected = from pair in StateMap[curState] select pair.Key;
                         throw new UnexpectedTokenException(_lineCount, _colCount, token.Type, expected.ToArray());
                     }
                     // Build BibEntry
                     switch (StateMap[curState][token.Type].Item2)
                     {
+                        case BibBuilderState.SetHeader:
+                            _header.Add(token.Value);
+                            break;
+
                         case BibBuilderState.Create:
                             bibEntry = new BibEntry();
                             break;
@@ -173,7 +243,8 @@ namespace BibTeXLibrary
                         case BibBuilderState.SetType:
                             Debug.Assert(bibEntry != null, "bib != null");
                             bibEntry.Type = token.Value;
-                            break;
+                            bibEntry.Initialize(_bibEntryInitialization.GetTags(bibEntry));
+							break;
 
                         case BibBuilderState.SetKey:
                             Debug.Assert(bibEntry != null, "bib != null");
@@ -224,12 +295,12 @@ namespace BibTeXLibrary
         /// Tokenizer for BibTeX entry.
         /// </summary>
         /// <returns></returns>
-        private IEnumerable<Token> Tokenizer()
+        private IEnumerable<Token> Tokenize()
         {
-            int code;
-            char c;
-            var braceCount = 0;
-            bool skipRead = false;
+            int     code;
+            char    c;
+            int     braceCount  = 0;
+            bool    skipRead    = false;
 
             while ((code = Peek()) != -1)
             {
@@ -339,7 +410,7 @@ namespace BibTeXLibrary
                 {
                     _colCount = 0;
                     _lineCount++;
-                    _inputText.ReadLine();
+                    yield return new Token(TokenType.Comment, _inputText.ReadLine());
                     skipRead = true;
                 }
                 else if (!char.IsWhiteSpace(c))

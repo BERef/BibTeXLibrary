@@ -13,7 +13,7 @@ namespace BibTeXLibrary
 	/// 
 	/// </summary>
 	[XmlRoot("bibentryinitialization")]
-	public class BibEntryInitializer
+	public class BibEntryInitialization
 	{
 		#region Enumerations
 
@@ -29,8 +29,8 @@ namespace BibTeXLibrary
 
 		#region Fields
 
-		private SerializableDictionary<string, string> _typeToTemplateMap;
-		private SerializableDictionary<string, List<string>> _templates;
+		private SerializableDictionary<string, string>			_typeToTemplateMap			= new SerializableDictionary<string, string>();
+		private SerializableDictionary<string, List<string>>	_templates					= new SerializableDictionary<string, List<string>>();
 
 		#endregion
 
@@ -39,7 +39,7 @@ namespace BibTeXLibrary
 		/// <summary>
 		/// Default constructor.
 		/// </summary>
-		public BibEntryInitializer()
+		public BibEntryInitialization()
 		{
 		}
 
@@ -56,6 +56,34 @@ namespace BibTeXLibrary
 		#endregion
 
 		#region Methods
+
+		/// <summary>
+		/// Gets the default set of (ordered) tags.
+		/// </summary>
+		/// <param name="bibEntry">BibTex entry type.</param>
+		public List<string> GetTags(BibEntry bibEntry)
+		{
+			return GetTags(bibEntry.Type);
+		}
+
+		/// <summary>
+		/// Gets the default set of (ordered) tags.
+		/// </summary>
+		/// <param name="type">BibTex entry type.</param>
+		public List<string> GetTags(string type)
+		{
+			type = type.ToLower();
+
+			if (_typeToTemplateMap.ContainsKey(type))
+			{
+				string template = _typeToTemplateMap[type];
+				return _templates[template];
+			}
+			else
+			{
+				return new List<string>();
+			}
+		}
 
 		#endregion
 
@@ -81,9 +109,9 @@ namespace BibTeXLibrary
 		/// Create an instance from a file.
 		/// </summary>
 		/// <param name="path">The file to read from.</param>
-		public static BibEntryInitializer Deserialize(string path)
+		public static BibEntryInitialization Deserialize(string path)
 		{
-			return Serialization.DeserializeObject<BibEntryInitializer>(path);
+			return Serialization.DeserializeObject<BibEntryInitialization>(path);
 		}
 
 		#endregion

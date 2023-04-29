@@ -16,6 +16,7 @@ namespace BibTeXLibrary
 		/// <summary>Create.</summary>
 		[Description("Create")]
 		Create,
+		SetHeader,
 		SetType,
 		SetKey,
 		SetTagName,

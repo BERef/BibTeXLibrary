@@ -16,6 +16,7 @@ namespace BibTeXLibrary
 		/// <summary>Begin.</summary>
 		[Description("Begin")]
 		Begin,
+		InHeader,
 		InStart,
 		InEntry,
 		InKey,
@@ -24,6 +25,7 @@ namespace BibTeXLibrary
 		InTagEqual,
 		InTagValue,
 		OutTagValue,
+		InComment,
 		OutEntry,
 
 		/// <summary>The number of types/items in the enumeration.</summary>

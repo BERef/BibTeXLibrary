@@ -19,8 +19,9 @@ namespace BibTeXLibrary
 
 		private static string					_bibInitializationFileName		= "Bib Entry Initialization.xml";
 
+		private List<string>					_header;
 		private BindingList<BibEntry>			_entries						= new BindingList<BibEntry>();
-		private BibEntryInitializer			_bibEntryInitialization;
+		private BibEntryInitialization			_bibEntryInitialization;
 
 		#endregion
 
@@ -73,13 +74,15 @@ namespace BibTeXLibrary
 		/// <param name="path">Full path to the bibliography file.</param>
 		public void Read(string path)
 		{
-			string bibInitializationPath	= GetBibEntryInitializationPath(path);
-			_bibEntryInitialization			= BibEntryInitializer.Deserialize(bibInitializationPath);
+			string bibInitializationPath			= GetBibEntryInitializationPath(path);
+			_bibEntryInitialization					= BibEntryInitialization.Deserialize(bibInitializationPath);
 
 			_entries.Clear();
-			BibParser parser = new BibParser(path);
-			
-			foreach (BibEntry bibEntry in parser.GetAllResult())
+			BibParser parser						= new BibParser(path, _bibEntryInitialization);
+
+			Tuple<List<string>, List<BibEntry>> results	= parser.GetAllResults();
+			_header									= results.Item1;
+			foreach (BibEntry bibEntry in results.Item2)
 			{
 				_entries.Add(bibEntry);
 			}
@@ -105,11 +108,21 @@ namespace BibTeXLibrary
 
 			using (StreamWriter streamWriter = new StreamWriter(path))
 			{
+				// Make sure the BibEntries use the expected line feed and carriage return character(s).
+				writeSettings.NewLine = streamWriter.NewLine;
+
+				// Write the header.  The header is stored as separate lines so when we write it we can use
+				// the expected line ending type (\r\n, \n) used by the writer.
+				foreach (string line in _header)
+				{
+					streamWriter.WriteLine(line);
+				}
+
+				// Write each entry with a blank line preceeding it.
 				foreach (BibEntry bibEntry in _entries)
 				{
 					streamWriter.WriteLine();
 					streamWriter.Write(bibEntry.ToString(writeSettings));
-					streamWriter.Write(streamWriter.NewLine);
 				}
 			}
 		}

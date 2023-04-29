@@ -64,7 +64,7 @@ namespace BibTeXLibrary
 		/// New line character or sequence.
 		/// </summary>
 		[XmlIgnore()]
-		public char NewLine { get; set; } = '\n';
+		public string NewLine { get; set; } = "\n";
 
 		/// <summary>
 		/// Tab character or sequence.
