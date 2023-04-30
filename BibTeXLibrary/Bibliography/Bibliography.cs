@@ -17,7 +17,7 @@ namespace BibTeXLibrary
 	{
 		#region Members
 
-		private static string					_bibInitializationFileName		= "Bib Entry Initialization.xml";
+		private readonly static string			_bibInitializationFileName		= "Bib Entry Initialization.xml";
 
 		private List<string>					_header;
 		private BindingList<BibEntry>			_entries						= new BindingList<BibEntry>();
