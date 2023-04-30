@@ -146,9 +146,10 @@ namespace BibTeXLibrary
 		/// <summary>
 		/// Constructor that reads a file using a StreamReader with default encoding.
 		/// </summary>
-		/// <param name="path">Full path and file name to the file to reader.</param>
-		public BibParser(string path, BibEntryInitialization bibEntryInitialization) :
-			this(new StreamReader(path, Encoding.Default), bibEntryInitialization)
+		/// <param name="path">Full path and file name to the file to reader.</param>'
+		/// <param name="bibEntryInitializationFile">Path of the BibEntry initialization information.</param>
+		public BibParser(string path, string bibEntryInitializationFile) :
+			this(new StreamReader(path, Encoding.Default), bibEntryInitializationFile)
 		{
 		}
 
@@ -165,10 +166,10 @@ namespace BibTeXLibrary
 		/// Constructor with a reader.
 		/// </summary>
 		/// <param name="textReader">TextReader.</param>
-		public BibParser(TextReader textReader, BibEntryInitialization bibEntryInitialization)
+		public BibParser(TextReader textReader, string bibEntryInitializationFile)
 		{
 			_inputText              = textReader;
-            _bibEntryInitialization = bibEntryInitialization;
+            _bibEntryInitialization = BibEntryInitialization.Deserialize(bibEntryInitializationFile);
 		}
 
 
@@ -179,7 +180,7 @@ namespace BibTeXLibrary
 		/// <summary>
 		/// Parse by given input text reader.
 		/// </summary>
-		/// <param name="inputText"></param>
+		/// <param name="inputText">TextReader containing the input text to be parsed.</param>
 		public static Tuple<List<string>, List<BibEntry>> Parse(TextReader inputText)
         {
             using (BibParser parser = new BibParser(inputText))
@@ -189,14 +190,28 @@ namespace BibTeXLibrary
             }
         }
 
-        #endregion
+		/// <summary>
+		/// Parse by given input text reader.
+		/// </summary>
+		/// <param name="inputText">TextReader containing the input text to be parsed.</param>
+		/// <param name="bibEntryInitializationFile">Path of the BibEntry initialization information.</param>
+		public static Tuple<List<string>, List<BibEntry>> Parse(TextReader inputText, string bibEntryInitializationFile)
+		{
+			using (BibParser parser = new BibParser(inputText, bibEntryInitializationFile))
+			{
+				List<BibEntry> entries = parser.Parse().ToList();
+				return new Tuple<List<string>, List<BibEntry>>(parser._header, entries);
+			}
+		}
 
-        #region Public Methods
+		#endregion
 
-        /// <summary>
-        /// Get all results from the Parser.
-        /// </summary>
-        public Tuple<List<string>, List<BibEntry>> GetAllResults()
+		#region Public Methods
+
+		/// <summary>
+		/// Get all results from the Parser.
+		/// </summary>
+		public Tuple<List<string>, List<BibEntry>> GetAllResults()
         {
 			List<BibEntry> entries = Parse().ToList();
 			return new Tuple<List<string>, List<BibEntry>>(_header, entries);

@@ -17,7 +17,6 @@ namespace BibTeXLibrary
 
 		private List<string>					_header;
 		private BindingList<BibEntry>			_entries						= new BindingList<BibEntry>();
-		private BibEntryInitialization			_bibEntryInitialization;
 
 		#endregion
 
@@ -67,17 +66,35 @@ namespace BibTeXLibrary
 		/// <summary>
 		/// Read the bibliography file.
 		/// </summary>
-		/// <param name="path">Full path to the bibliography file.</param>
-		public void Read(string path)
+		/// <param name="bibFilePath">Full path to the bibliography file.</param>
+		public void Read(string bibFilePath)
 		{
-			string bibInitializationPath			= GetBibEntryInitializationPath(path);
-			_bibEntryInitialization					= BibEntryInitialization.Deserialize(bibInitializationPath);
+			BibParser parser = new BibParser(bibFilePath);
+			GetResults(parser);
+		}
+
+		/// <summary>
+		/// Read the bibliography file.
+		/// </summary>
+		/// <param name="bibFilePath">Full path to the bibliography file.</param>
+		/// <param name="bibEntryInitializationFile">Full path to the bibliography entry initialization file.</param>
+		public void Read(string bibFilePath, string bibEntryInitializationFile)
+		{
+			BibParser parser = new BibParser(bibFilePath, bibEntryInitializationFile);
+			GetResults(parser);
+		}
+
+		/// <summary>
+		/// Gets the results from the parser.
+		/// </summary>
+		/// <param name="parser">BibParser used to read the file.</param>
+		private void GetResults(BibParser parser)
+		{
+			Tuple<List<string>, List<BibEntry>> results = parser.GetAllResults();
+
+			_header = results.Item1;
 
 			_entries.Clear();
-			BibParser parser						= new BibParser(path, _bibEntryInitialization);
-
-			Tuple<List<string>, List<BibEntry>> results	= parser.GetAllResults();
-			_header									= results.Item1;
 			foreach (BibEntry bibEntry in results.Item2)
 			{
 				_entries.Add(bibEntry);
