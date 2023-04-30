@@ -57,6 +57,12 @@ namespace BibTeXLibrary
 		public int AlignAtTabStop { get; set; } = 4;
 
 		/// <summary>
+		/// Remove the comma after the last tag in a BibEntry.
+		/// </summary>
+		[XmlAttribute("removelastcomma")]
+		public bool RemoveLastComma { get; set; } = true;
+
+		/// <summary>
 		/// New line character or sequence.
 		/// </summary>
 		[XmlIgnore()]

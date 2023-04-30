@@ -289,10 +289,19 @@ namespace BibTeXLibrary
 				// Add the tag value.
 				bib.Append("= ");
 				bib.Append(tagEnumerator.Value.ToString());
+				bib.Append(",");
 
-                // End the line.
-                bib.Append(writeSettings.NewLine);
+				// End the line.
+				bib.Append(writeSettings.NewLine);
             }
+			// Option to remove comma after last tag.
+			if (writeSettings.RemoveLastComma)
+			{
+				// Remove comma after the last tag.  To do that, we need to remove the new line character and the
+				// comma and then replace it with a new line character.
+				bib.Remove(bib.Length - 1 - writeSettings.NewLine.Length, 1 + writeSettings.NewLine.Length);
+				bib.Append(writeSettings.NewLine);
+			}
 
             // Closing bracket and end of entry.
             bib.Append("}");
