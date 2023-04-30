@@ -6,7 +6,8 @@ namespace BibTeXLibrary
     [Serializable]
     public sealed class UnexpectedTokenException : ParseErrorException
     {
-        #region Public Property
+        #region Public Properties
+
         /// <summary>
         /// Error message.
         /// </summary>
@@ -15,19 +16,25 @@ namespace BibTeXLibrary
         #endregion
 
         #region Constructor
-        public UnexpectedTokenException(int lineNo, int colNo, TokenType unexpected, params TokenType[] expected)
-            : base(lineNo, colNo)
+
+        public UnexpectedTokenException(int lineNumber, int colNumber, TokenType unexpected, params TokenType[] expected)
+            : base(lineNumber, colNumber)
         {
-            var errorMsg = new StringBuilder(
-                $"Line {lineNo}, Col {colNo}. Unexpected token: {unexpected}. ");
-            errorMsg.Append("Expected: ");
+            var errorMsg = new StringBuilder($"An unexpected token was found.\nToken: '{unexpected}'.\nAt line {lineNumber}, column {colNumber}.");
+
+			// Add a list of acceptable tokens.
+            errorMsg.Append("\nExpected: ");
             foreach (var item in expected)
             {
                 errorMsg.Append($"{item}, ");
             }
+			// Remove last comma and space.
             errorMsg.Remove(errorMsg.Length - 2, 2);
+
             Message = errorMsg.ToString();
         }
+
         #endregion
-    }
-}
+
+    } // End class.
+} // End namespace.
