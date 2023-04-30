@@ -332,23 +332,6 @@ namespace BibTeXLibrary
                     yield return new Token(TokenType.Name, value.ToString());
                     goto ContinueExcute;
                 }
-                //else if (char.IsDigit(c))
-                //{
-                //    var value = new StringBuilder();
-
-                //    while (true)
-                //    {
-                //        c = (char)Read();
-                //        value.Append(c);
-
-                //        if ((code = Peek()) == -1) break;
-                //        c = (char)code;
-
-                //        if (!char.IsDigit(c)) break;
-                //    }
-                //    yield return new Token(TokenType.String, value.ToString());
-                //    goto ContinueExcute;
-                //}
                 else if (c == '"')
                 {
 					_inputText.Read();
