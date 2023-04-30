@@ -313,7 +313,8 @@ namespace BibTeXLibrary
 
                 if (c == '@')
                 {                    
-                    yield return new Token(TokenType.Start);
+					Read();
+					yield return new Token(TokenType.Start);
                 }
                 else if (IsStringCharacter(c))
                 {
@@ -330,11 +331,10 @@ namespace BibTeXLibrary
 						if (!IsStringCharacter(c)) break;
                     }
                     yield return new Token(TokenType.Name, value.ToString());
-                    goto ContinueExcute;
                 }
                 else if (c == '"')
                 {
-					_inputText.Read();
+					Read();
 
 					// Some entries have the unfortunate practice of using a start sequence of "{ and an end sequence of }".
 					// BibTeX seems to allow this.  We will treat "{ as a single { and similar for the closing sequence.  There,
@@ -352,16 +352,13 @@ namespace BibTeXLibrary
 						}
 						yield return new Token(TokenType.String, value.ToString());
 					}
-					else
-					{
-						goto ContinueExcute;
-					}
 				}
                 else if (c == '{')
                 {
                     if (braceCount++ == 0)
                     {
-                        yield return new Token(TokenType.LeftBrace);
+						Read();
+						yield return new Token(TokenType.LeftBrace);
                     }
                     else
                     {
@@ -392,29 +389,32 @@ namespace BibTeXLibrary
 						{
 							Read();
 						}
-
-                        goto ContinueExcute;
                     }
                 }
                 else if (c == '}')
                 {
-                    braceCount--;
+					Read();
+					braceCount--;
                     yield return new Token(TokenType.RightBrace);
                 }
                 else if (c == ',')
                 {
-                    yield return new Token(TokenType.Comma);
+					Read();
+					yield return new Token(TokenType.Comma);
                 }
                 else if (c == '#')
                 {
-                    yield return new Token(TokenType.Concatenation);
+					Read();
+					yield return new Token(TokenType.Concatenation);
                 }
                 else if (c == '=')
                 {
-                    yield return new Token(TokenType.Equal);
+					Read();
+					yield return new Token(TokenType.Equal);
                 }
                 else if (c == '\n')
                 {
+					Read();
                     _colCount = 0;
                     _lineCount++;
                 }
@@ -423,18 +423,16 @@ namespace BibTeXLibrary
                     _colCount = 0;
                     _lineCount++;
                     yield return new Token(TokenType.Comment, _inputText.ReadLine());
-					goto ContinueExcute;
 				}
                 else if (!char.IsWhiteSpace(c))
                 {
                     throw new UnrecognizableCharacterException(_lineCount, _colCount, c);
                 }
-
-				// Move to next char if possible.
-				Read();
-
-                // Don't move.
-                ContinueExcute:;
+				else
+				{
+					// Read white space.
+					Read();
+				}
             }
         }
 
