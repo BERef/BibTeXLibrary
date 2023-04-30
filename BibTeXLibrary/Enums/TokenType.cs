@@ -41,10 +41,6 @@ namespace BibTeXLibrary
 		[Description("Name")]
 		Name,
 
-		/// <summary>Quotation.</summary>
-		[Description("Quotation")]
-		Quotation,
-
 		/// <summary>RightBrace.</summary>
 		[Description("RightBrace")]
 		RightBrace,
