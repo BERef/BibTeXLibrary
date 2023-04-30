@@ -328,11 +328,19 @@ namespace BibTeXLibrary
             }
         }
 
+		/// <summary>
+		/// Get a TagValue.
+		/// </summary>
+		/// <param name="tagName">Name of the tag to get.</param>
 		public TagValue GetTagValue(string tagName)
 		{
 			return (TagValue)_tags[tagName.ToLower()];
 		}
 
+		/// <summary>
+		/// Set a TagValue.
+		/// </summary>
+		/// <param name="tagName">Name of the tag to get.</param>
 		public void SetTagValue(string tagName, TagValue tagValue)
 		{
 			_tags[tagName.ToLower()] = tagValue;
