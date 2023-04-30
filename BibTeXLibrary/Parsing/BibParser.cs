@@ -48,8 +48,9 @@ namespace BibTeXLibrary
             {ParserState.InKey,       new Action {
                 { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.Build) },
                 { TokenType.Name,          new Next(ParserState.OutKey,      BibBuilderState.SetKey) },
+                { TokenType.String,        new Next(ParserState.OutKey,      BibBuilderState.SetKey) },
                 { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.Skip) }
-            } },
+			} },
 
             {ParserState.OutKey,      new Action {
                 { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.Skip) }
@@ -228,7 +229,7 @@ namespace BibTeXLibrary
 					else
 					{
                         var expected = from pair in StateMap[curState] select pair.Key;
-                        throw new UnexpectedTokenException(_lineCount, _colCount, token.Type, expected.ToArray());
+						throw new UnexpectedTokenException(_lineCount, _colCount, token.Type, expected.ToArray());
                     }
                     // Build BibEntry
                     switch (StateMap[curState][token.Type].Item2)
@@ -305,7 +306,6 @@ namespace BibTeXLibrary
             int     code;
             char    c;
             int     braceCount  = 0;
-            bool    skipRead    = false;
 
             while ((code = Peek()) != -1)
             {
@@ -315,7 +315,7 @@ namespace BibTeXLibrary
                 {                    
                     yield return new Token(TokenType.Start);
                 }
-                else if (char.IsLetter(c))
+                else if (IsStringCharacter(c))
                 {
                     var value = new StringBuilder();
 
@@ -327,47 +327,53 @@ namespace BibTeXLibrary
                         if ((code = Peek()) == -1) break;
                         c = (char)code;
 
-                        if (!char.IsLetterOrDigit(c) &&
-                            c != '-' &&
-                            c != '.' &&
-                            c != '_' &&
-                            c != ':') break;
+						if (!IsStringCharacter(c)) break;
                     }
                     yield return new Token(TokenType.Name, value.ToString());
                     goto ContinueExcute;
                 }
-                else if (char.IsDigit(c))
-                {
-                    var value = new StringBuilder();
+                //else if (char.IsDigit(c))
+                //{
+                //    var value = new StringBuilder();
 
-                    while (true)
-                    {
-                        c = (char)Read();
-                        value.Append(c);
+                //    while (true)
+                //    {
+                //        c = (char)Read();
+                //        value.Append(c);
 
-                        if ((code = Peek()) == -1) break;
-                        c = (char)code;
+                //        if ((code = Peek()) == -1) break;
+                //        c = (char)code;
 
-                        if (!char.IsDigit(c)) break;
-                    }
-                    yield return new Token(TokenType.String, value.ToString());
-                    goto ContinueExcute;
-                }
+                //        if (!char.IsDigit(c)) break;
+                //    }
+                //    yield return new Token(TokenType.String, value.ToString());
+                //    goto ContinueExcute;
+                //}
                 else if (c == '"')
                 {
-                    var value = new StringBuilder();
+					_inputText.Read();
 
-                    _inputText.Read();
-                    while ((code = Peek()) != -1)
-                    {
-                        if (c != '\\' && code == '"') break;
+					// Some entries have the unfortunate practice of using a start sequence of "{ and an end sequence of }".
+					// BibTeX seems to allow this.  We will treat "{ as a single { and similar for the closing sequence.  There,
+					// if we read "{, we ignore the quotation and continue.
+					if (Peek() != '{')
+					{
+						StringBuilder value = new StringBuilder();
+						while ((code = Peek()) != -1)
+						{
+							if (c != '\\' && code == '"') break;
 
-                        c = (char)Read();
-                        value.Append(c);
+							c = (char)Read();
+							value.Append(c);
 
-                    }
-                    yield return new Token(TokenType.String, value.ToString());
-                }
+						}
+						yield return new Token(TokenType.String, value.ToString());
+					}
+					else
+					{
+						goto ContinueExcute;
+					}
+				}
                 else if (c == '{')
                 {
                     if (braceCount++ == 0)
@@ -377,15 +383,33 @@ namespace BibTeXLibrary
                     else
                     {
                         var value = new StringBuilder();
+						// Read the brace (was only peeked).
                         Read();
                         while (braceCount > 1 && Peek() != -1)
                         {
                             c = (char)Read();
-                            if (c == '{') braceCount++;
-                            else if (c == '}') braceCount--;
-                            if (braceCount > 1) value.Append(c);
-                        }
+							if (c == '{')
+							{
+								braceCount++;
+							}
+							else if (c == '}')
+							{
+								braceCount--;
+							}
+
+							if (braceCount > 1)
+							{
+								value.Append(c);
+							}
+						}
                         yield return new Token(TokenType.String, value.ToString());
+
+						// Ignore the quotation in a }" combination.
+						if (Peek() == '"')
+						{
+							Read();
+						}
+
                         goto ContinueExcute;
                     }
                 }
@@ -416,24 +440,42 @@ namespace BibTeXLibrary
                     _colCount = 0;
                     _lineCount++;
                     yield return new Token(TokenType.Comment, _inputText.ReadLine());
-                    skipRead = true;
-                }
+					goto ContinueExcute;
+				}
                 else if (!char.IsWhiteSpace(c))
                 {
                     throw new UnrecognizableCharacterException(_lineCount, _colCount, c);
                 }
 
                 // Move to next char if possible.
-                if (_inputText.Peek() != -1 && !skipRead)
+                if (_inputText.Peek() != -1)
                 {
                     _inputText.Read();
                 }
 
-                skipRead = false;
-                // Don't move
+                // Don't move.
                 ContinueExcute:;
             }
         }
+
+		private bool IsStringCharacter(char c)
+		{
+			if (char.IsLetterOrDigit(c) ||
+				c == '-' ||
+				c == '.' ||
+				c == '_' ||
+				c == '—' ||
+				c == ':' ||
+				c == '/' ||
+				c == '\\')
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
 
         /// <summary>
         /// Peek next char but not move forward.
