@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace BibTeXLibrary
@@ -13,7 +9,7 @@ namespace BibTeXLibrary
 	/// </summary>
 	public class WriteSettings
 	{
-		#region Members
+		#region Fields
 
 		#endregion
 
@@ -171,10 +167,6 @@ namespace BibTeXLibrary
 			}
 
 		}
-
-		#endregion
-
-		#region XML
 
 		#endregion
 

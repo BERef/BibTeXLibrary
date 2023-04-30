@@ -15,7 +15,7 @@ namespace BibTeXLibrary
 	/// </summary>
 	public class Bibliography
 	{
-		#region Members
+		#region Fields
 
 		private readonly static string			_bibInitializationFileName		= "Bib Entry Initialization.xml";
 
