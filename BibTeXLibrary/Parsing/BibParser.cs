@@ -430,11 +430,8 @@ namespace BibTeXLibrary
                     throw new UnrecognizableCharacterException(_lineCount, _colCount, c);
                 }
 
-                // Move to next char if possible.
-                if (_inputText.Peek() != -1)
-                {
-                    _inputText.Read();
-                }
+				// Move to next char if possible.
+				Read();
 
                 // Don't move.
                 ContinueExcute:;
@@ -476,7 +473,14 @@ namespace BibTeXLibrary
         private int Read()
         {
             _colCount++;
-            return _inputText.Read();
+			if (_inputText.Peek() != -1)
+			{
+				return _inputText.Read();
+			}
+			else
+			{
+				return -1;
+			}
         }
 
         #endregion
