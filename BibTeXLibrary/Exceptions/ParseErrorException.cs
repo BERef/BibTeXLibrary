@@ -4,25 +4,34 @@ namespace BibTeXLibrary
 {
     public abstract class ParseErrorException : ApplicationException
     {
-        #region Public Field
+        #region Public Fields
+
         /// <summary>
         /// Line No.
         /// </summary>
-        public readonly int LineNo;
+        public readonly int LineNumber;
 
         /// <summary>
         /// Col No.
         /// </summary>
-        public readonly int ColNo;
-        #endregion
+        public readonly int ColumnNumber;
 
-        #region Constructor
+		#endregion
 
-        protected ParseErrorException(int lineNo, int colNo)
+		#region Constructor
+
+		/// <summary>
+		/// Constructor with parsing error location.
+		/// </summary>
+		/// <param name="lineNumber">The line number of the error.</param>
+		/// <param name="columnNumber">The column number of the error.</param>
+		protected ParseErrorException(int lineNumber, int columnNumber)
         {
-            LineNo = lineNo;
-            ColNo = colNo;
+            LineNumber		= lineNumber;
+            ColumnNumber	= columnNumber;
         }
+
         #endregion
-    }
-}
+
+    } // End class.
+} // End namespace.

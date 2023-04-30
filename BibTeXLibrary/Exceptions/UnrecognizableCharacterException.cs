@@ -2,7 +2,8 @@
 {
     public class UnrecognizableCharacterException : ParseErrorException
     {
-        #region Public Property
+        #region Public Properties
+
         /// <summary>
         /// Error message.
         /// </summary>
@@ -11,11 +12,15 @@
         #endregion
 
         #region Constructor
-        public UnrecognizableCharacterException(int lineNo, int colNo, char unexpected)
-            : base(lineNo, colNo)
+
+        public UnrecognizableCharacterException(int lineNumber, int columnNumber
+			, char unexpected)
+            : base(lineNumber, columnNumber)
         {
-            Message = $"Line {lineNo}, Col {colNo}. Unrecognizable character: '{unexpected}'.";
+            Message = $"An unexpected character was found.\nCharacter: '{unexpected}'.\nAt line {lineNumber+1}, column {columnNumber+1}.";
         }
+
         #endregion
-    }
-}
+
+    } // End class.
+} // End namespace.
