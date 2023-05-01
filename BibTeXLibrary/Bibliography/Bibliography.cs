@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Xml.Serialization;
+using System.Linq;
+using System.Text;
+using static System.Net.WebRequestMethods;
+using static DigitalProduction.Strings.AlphaNumericCharacterProvider;
+using DigitalProduction.Strings;
 
 namespace BibTeXLibrary
 {
@@ -13,7 +18,7 @@ namespace BibTeXLibrary
 	{
 		#region Fields
 
-		private readonly static string			_bibInitializationFileName		= "Bib Entry Initialization.xml";
+		public static string[]					_nameSuffixes					= { "jr", "jr.", "sr", "sr.", "ii", "iii", "iv", "v", @"p\`{e}re", "fils" };
 
 		private List<string>					_header;
 		private BindingList<BibEntry>			_entries						= new BindingList<BibEntry>();
@@ -53,6 +58,8 @@ namespace BibTeXLibrary
 		#endregion
 
 		#region Methods
+
+		#region Reading and Writing
 
 		/// <summary>
 		/// Read the bibliography file.
@@ -138,6 +145,128 @@ namespace BibTeXLibrary
 		{
 			_entries.Clear();
 		}
+
+		#endregion
+
+		#region Key Generation
+
+		public string GenerateUniqueKey(BibEntry entry)
+		{
+			string prefix		= "ref:";
+			StringBuilder key	= new StringBuilder(prefix);
+
+			// This is setup to allow no conversion, lower case, upper case, et cetera in the future, but for now just assume lower case.
+			key.Append(GetAuthorsName(entry, "last", StringCase.LowerCase));
+			key.Append(entry.Year);
+
+			// Needs to be last.
+			key.Append(GenerateSuffix(key.ToString()));
+
+			return key.ToString();
+		}
+
+		private string GenerateSuffix(string baseKey)
+		{
+			// Provide a sequence of incremented strings.  For example, a,b,c or A,B,C.
+			AlphabetEnumerable suffixGenerator = AlphaNumericCharacterProvider.EnglishLowerCaseAlphabet;
+
+			foreach (string suffix in suffixGenerator())
+			{
+				if (!IsKeyInUse(baseKey+suffix))
+				{
+					return suffix;
+				}
+			}
+
+			// We only go through one loop of a suffix generator.  If we run out it is an exception, we don't currently
+			// handle this case.  An example would be using lower case letters and all names from
+			// ref:shakespeare1597a to ref:shakespeare1597z were used.  Highly unlikely.
+			throw new IndexOutOfRangeException("Ran out of suffix characters.");
+		}
+
+		private bool IsKeyInUse(string key)
+		{
+			// BibTeX seems to be case sensitive keys.  I.e.
+			// @book{ref:shakespeare,
+			// is different from
+			// @book{ref:Shakespeare,
+			// However, this could be confusing or error prone, so (for now anyway) we will do a case insensitive comparison.
+			key = key.ToLower();
+
+			foreach (BibEntry entry in _entries)
+			{
+				if (entry.Key.ToLower() == key)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		private string GetAuthorsName(BibEntry entry, string format, StringCase toCase)
+		{
+			// Get the authors and split on the "and" string.  If there are no authors, return a blank string.
+			string[] authors = entry.Author.Split(new string[] { "and" }, StringSplitOptions.RemoveEmptyEntries);
+			if (authors.Length == 0)
+			{
+				return "";
+			}
+
+			string firstAuthorName = "";
+			string result = "";
+
+			// Split the first author on a comma.  Author names can be in the formats of:
+			// William Shakespeare
+			// Shakespeare, William
+			// If it is in the second format, we will reverse it so we have the name always specified in the same manner.
+			// If there is no comma, we should only get 1 result.
+			string[] firstAuthorArray	= authors[0].Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+			if (firstAuthorArray.Length == 1)
+			{
+				// William Shakespeare, nothing required.
+				firstAuthorName = firstAuthorArray[0];
+			}
+			else
+			{
+				// Shakespeare, William, reverse the order.
+				firstAuthorName = firstAuthorArray[1] + " " + firstAuthorArray[0];
+			}
+
+			switch (format)
+			{
+				case "full":
+					result = firstAuthorName;
+					break;
+
+				case "first":
+					result = (firstAuthorName.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))[0];
+					break;
+
+				case "last":
+					// Split the full name into separate words/name.
+					firstAuthorArray = firstAuthorName.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+					// We don't want to return "Sr.", "Jr.", et cetera, so work backwards and ignore any of those.
+					// The first word we find that is not in our rejected list, we will treat as the last name.
+					for (int i = firstAuthorArray.Length-1;  i >= 0; i--)
+					{
+						if (!_nameSuffixes.Any(item => item == firstAuthorArray[i]))
+						{
+							result = firstAuthorArray[i];
+							break;
+						}
+					}
+					break;
+
+				default:
+					throw new NotSupportedException("The name format specified is not valid.");
+			}
+
+			return Format.ChangeCase(result, toCase);
+		}
+
+		#endregion
 
 		#endregion
 
