@@ -55,15 +55,6 @@ namespace BibTeXLibrary
 		#region Methods
 
 		/// <summary>
-		/// Gets the path of the Bib Entry Initialization file.
-		/// </summary>
-		/// <param name="projectFilePath">Path to the main project file.</param>
-		private string GetBibEntryInitializationPath(string projectFilePath)
-		{
-			return Path.Combine(Path.GetDirectoryName(projectFilePath), _bibInitializationFileName);
-		}
-
-		/// <summary>
 		/// Read the bibliography file.
 		/// </summary>
 		/// <param name="bibFilePath">Full path to the bibliography file.</param>
