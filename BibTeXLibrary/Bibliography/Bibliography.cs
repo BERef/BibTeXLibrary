@@ -150,7 +150,7 @@ namespace BibTeXLibrary
 
 		#region Key Generation
 
-		public string GenerateUniqueKey(BibEntry entry)
+		public void GenerateUniqueKey(BibEntry entry)
 		{
 			string prefix		= "ref:";
 			StringBuilder key	= new StringBuilder(prefix);
@@ -162,7 +162,7 @@ namespace BibTeXLibrary
 			// Needs to be last.
 			key.Append(GenerateSuffix(key.ToString()));
 
-			return key.ToString();
+			entry.Key = key.ToString();
 		}
 
 		private string GenerateSuffix(string baseKey)
