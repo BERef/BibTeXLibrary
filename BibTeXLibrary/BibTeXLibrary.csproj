@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BibTeXLibrary</RootNamespace>
     <AssemblyName>BibTeXLibrary</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -46,14 +47,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BibEntry.cs" />
-    <Compile Include="BibParser.cs" />
-    <Compile Include="Config.cs" />
-    <Compile Include="ParseErrorException.cs" />
+    <Compile Include="Bibliography\BibEntryInitialization.cs" />
+    <Compile Include="Bibliography\TagValue.cs" />
+    <Compile Include="Enums\BibBuilderState.cs" />
+    <Compile Include="Bibliography\BibEntry.cs" />
+    <Compile Include="Bibliography\Bibliography.cs" />
+    <Compile Include="Enums\TokenType.cs" />
+    <Compile Include="Parsing\BibParser.cs" />
+    <Compile Include="Exceptions\ParseErrorException.cs" />
+    <Compile Include="Enums\ParserState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Token.cs" />
-    <Compile Include="UnrecognizableCharacterException.cs" />
-    <Compile Include="UnexpectedTokenException.cs" />
+    <Compile Include="Parsing\Token.cs" />
+    <Compile Include="Exceptions\UnrecognizableCharacterException.cs" />
+    <Compile Include="Exceptions\UnexpectedTokenException.cs" />
+    <Compile Include="Enums\WhiteSpace.cs" />
+    <Compile Include="Bibliography\WriteSettings.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\C-Sharp-Library\Library\Digital Production.csproj">
+      <Project>{078ea7c0-7ee8-4d51-9421-8eedc779acbb}</Project>
+      <Name>Digital Production</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
