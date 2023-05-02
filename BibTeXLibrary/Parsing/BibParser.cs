@@ -243,7 +243,7 @@ namespace BibTeXLibrary
 					}
 					else
 					{
-                        var expected = from pair in StateMap[curState] select pair.Key;
+                        IEnumerable<TokenType> expected = from pair in StateMap[curState] select pair.Key;
 						throw new UnexpectedTokenException(_lineCount, _colCount, token.Type, expected.ToArray());
                     }
                     // Build BibEntry
