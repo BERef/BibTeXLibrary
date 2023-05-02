@@ -6,7 +6,6 @@ using System.Xml.Serialization;
 using System.Linq;
 using System.Text;
 using static System.Net.WebRequestMethods;
-using static DigitalProduction.Strings.AlphaNumericCharacterProvider;
 using DigitalProduction.Strings;
 
 namespace BibTeXLibrary
@@ -150,27 +149,65 @@ namespace BibTeXLibrary
 
 		#region Key Generation
 
-		public void GenerateUniqueKey(BibEntry entry)
+		private IAlphaNumericStringProvider GetSuffixGenerator()
 		{
-			string prefix		= "ref:";
-			StringBuilder key	= new StringBuilder(prefix);
+			// Provide a sequence of incremented strings.  For example, a,b,c or A,B,C.
+			return new EnglishLowerCaseAlphabet();
+		}
 
-			// This is setup to allow no conversion, lower case, upper case, et cetera in the future, but for now just assume lower case.
-			key.Append(GetAuthorsName(entry, "last", StringCase.LowerCase));
-			key.Append(entry.Year);
+		/// <summary>
+		/// Determines if the BibEntry's key follows the rules to be a valid auto key.  If the key is a
+		/// valid auto generated key, nothing is done, otherwise an unique key is generated according to
+		/// the rules.
+		/// </summary>
+		/// <param name="entry">BibEntry to use auto generated key.</param>
+		public void AutoKeyEntry(BibEntry entry)
+		{
+			if (!ValidAutoKey(entry))
+			{
+				GenerateUniqueKey(entry);
+			}
+		}
+
+		/// <summary>
+		/// Checks if the key follows the rules to be a valid auto key.
+		/// </summary>
+		/// <param name="entry">BibEntry to check.</param>
+		private bool ValidAutoKey(BibEntry entry)
+		{
+			string keyBase = GenerateKeyBase(entry);
+			return keyBase == entry.Key.Substring(0, keyBase.Length);
+		}
+
+		/// <summary>
+		/// Generates a new, unique key for the entry and sets it.
+		/// </summary>
+		/// <param name="entry">BibEntry to generate a key for.</param>
+
+		private void GenerateUniqueKey(BibEntry entry)
+		{
+			string key = GenerateKeyBase(entry);
 
 			// Needs to be last.
-			key.Append(GenerateSuffix(key.ToString()));
+			key += GenerateSuffix(key.ToString());
 
 			entry.Key = key.ToString();
 		}
 
+		private string GenerateKeyBase(BibEntry entry)
+		{
+			string prefix = "ref:";
+			StringBuilder key = new StringBuilder(prefix);
+
+			// This is setup to allow no conversion, lower case, upper case, et cetera in the future, but for now just assume lower case.
+			key.Append(GetAuthorsName(entry, "last", StringCase.LowerCase));
+			key.Append(entry.Year);
+			return key.ToString();
+		}
+
 		private string GenerateSuffix(string baseKey)
 		{
-			// Provide a sequence of incremented strings.  For example, a,b,c or A,B,C.
-			AlphabetEnumerable suffixGenerator = AlphaNumericCharacterProvider.EnglishLowerCaseAlphabet;
-
-			foreach (string suffix in suffixGenerator())
+			foreach (string suffix in GetSuffixGenerator().Get())
 			{
 				if (!IsKeyInUse(baseKey+suffix))
 				{
