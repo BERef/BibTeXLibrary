@@ -10,6 +10,7 @@ namespace BibTeXLibrary
 	using System.Collections;
 	using System.Linq;
     using System.Runtime.CompilerServices;
+	using System.Runtime.InteropServices;
 
     public class BibEntry : INotifyPropertyChanged
 	{
@@ -45,131 +46,176 @@ namespace BibTeXLibrary
         /// </summary>
         private readonly OrderedDictionary _tags = new OrderedDictionary();
 
-        #endregion
+		#endregion
 
-        #region Public Properties
-
-		/// <summary>
-		/// Address.
-		/// </summary>
-        public string Address
-        {
-            get => this[GetFormattedName()];
-            set => this[GetFormattedName()] = value;
-        }
+		#region Public Properties
 
 		/// <summary>
-		/// Annote.
+		/// The address entry or an empty string if the address was not specified.
 		/// </summary>
-        public string Annote
+		public string Address
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
 		/// <summary>
-		/// Author.
+		/// The annote entry or an empty string if the annote was not specified.
 		/// </summary>
-        public string Author
+		public string Annote
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
 		/// <summary>
-		/// Booktitle.
+		/// The author entry or an empty string if the author was not specified.
 		/// </summary>
-        public string Booktitle
+		public string Author
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
-        public string Chapter
+		/// <summary>
+		/// The booktitle entry or an empty string if the booktitle was not specified.
+		/// </summary>
+		public string BookTitle
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
-        public string Crossref
+		/// <summary>
+		/// The chapter entry or an empty string if the chapter was not specified.
+		/// </summary>
+		public string Chapter
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
-        public string Edition
+		/// <summary>
+		/// The crossref entry or an empty string if the crossref was not specified.
+		/// </summary>
+		public string CrossRef
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
-        public string Editor
+		/// <summary>
+		/// The edition entry or an empty string if the edition was not specified.
+		/// </summary>
+		public string Edition
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
-        public string Howpublished
+		/// <summary>
+		/// The editor entry or an empty string if the editor was not specified.
+		/// </summary>
+		public string Editor
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
-        public string Institution
+		/// <summary>
+		/// The howpublished entry or an empty string if the howpublished was not specified.
+		/// </summary>
+		public string HowPublished
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
-        public string Journal
+		/// <summary>
+		/// The institution entry or an empty string if the institution was not specified.
+		/// </summary>
+		public string Institution
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
-        public string Note
+		/// <summary>
+		/// The journal entry or an empty string if the journal was not specified.
+		/// </summary>
+		public string Journal
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
-        public string Number
+		/// <summary>
+		/// The note entry or an empty string if the note was not specified.
+		/// </summary>
+		public string Note
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
-        public string Organization
+		/// <summary>
+		/// The number entry or an empty string if the number was not specified.
+		/// </summary>
+		public string Number
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
-        public string Pages
+		/// <summary>
+		/// The organization entry or an empty string if the organization was not specified.
+		/// </summary>
+		public string Organization
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
-        public string Publisher
+		/// <summary>
+		/// The pages entry or an empty string if the pages was not specified.
+		/// </summary>
+		public string Pages
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
-        public string School
+		/// <summary>
+		/// The publisher entry or an empty string if the publisher was not specified.
+		/// </summary>
+		public string Publisher
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
-        public string Series
+		/// <summary>
+		/// The school entry or an empty string if the school was not specified.
+		/// </summary>
+		public string School
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
-        public string Title
+		/// <summary>
+		/// The series entry or an empty string if the series was not specified.
+		/// </summary>
+		public string Series
+        {
+            get => this[GetFormattedName()];
+            set => this[GetFormattedName()] = value;
+        }
+
+		/// <summary>
+		/// The title entry or an empty string if the title was not specified.
+		/// </summary>
+		public string Title
         {
             get => this[GetFormattedName()];
             set
@@ -179,37 +225,49 @@ namespace BibTeXLibrary
             }
 		}
 
+		/// <summary>
+		/// The volume entry or an empty string if the volume was not specified.
+		/// </summary>
         public string Volume
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
-        public string Year
+		/// <summary>
+		/// The year entry or an empty string if the year was not specified.
+		/// </summary>
+		public string Year
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
-        public string Month
+		/// <summary>
+		/// The month entry or an empty string if the month was not specified.
+		/// </summary>
+		public string Month
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
-        public string Abstract
+		/// <summary>
+		/// The abstract entry or an empty string if the abstract was not specified.
+		/// </summary>
+		public string Abstract
         {
             get => this[GetFormattedName()];
             set => this[GetFormattedName()] = value;
         }
 
         /// <summary>
-        /// Entry's type
+        /// Entry's type.
         /// </summary>
         public string Type { get; set; }
 
         /// <summary>
-        /// Entry's key
+        /// Entry's key.
         /// </summary>
 		public string Key
 		{
@@ -223,6 +281,12 @@ namespace BibTeXLibrary
 				NotifyPropertyChanged("Key");
 			}
 		}
+
+		/// <summary>
+		/// Get the names of the tags.
+		/// </summary>
+		public List<string> TagNames { get => (from string item in _tags.Keys select item).ToList(); }
+
 
 		#endregion
 
@@ -309,6 +373,7 @@ namespace BibTeXLibrary
 
 			return bib.ToString();
         }
+
         #endregion
 
         #region Public Tag Value
