@@ -175,6 +175,13 @@ namespace BibTeXLibrary
 		private bool ValidAutoKey(BibEntry entry)
 		{
 			string keyBase = GenerateKeyBase(entry);
+
+			// If the key base is longer, it is definitely not valid and will cause an error when getting the sub string below.
+			if (keyBase.Length > entry.Key.Length)
+			{
+				return false;
+			}
+
 			return keyBase == entry.Key.Substring(0, keyBase.Length);
 		}
 

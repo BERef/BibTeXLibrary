@@ -35,6 +35,23 @@ namespace BibTeXLibrary
 
 		#endregion
 
+		#region Public Static Methods
+
+		/// <summary>
+		/// Create a new BibEntry template.  The template is an initialized, but blank BibEntry.
+		/// </summary>
+		/// <param name="bibEntryInitialization">BibEntryInitialization.</param>
+		/// <param name="type">The "type" of the bibliography entry.  The type must have an initialization template.</param>
+		public static BibEntry NewBibEntryTemplate(BibEntryInitialization bibEntryInitialization, string type)
+		{
+			BibEntry bibEntry = new BibEntry() { Type = type };
+			bibEntry.Initialize(bibEntryInitialization.GetDefaultTags(type));
+
+			return bibEntry;
+		}
+
+		#endregion
+
 		#region Private Fields
 
 		/// <summary>

@@ -47,24 +47,28 @@ namespace BibTeXLibrary
 		[XmlElement("templates")]
 		public SerializableDictionary<string, List<string>> Templates { get => _templates; set => _templates = value; }
 
+		public List<string> TypeNames { get => (from string item in _typeToTemplateMap.Keys select item).ToList(); }
+
+		public List<string> TemplateNames { get => (from string item in _templates.Keys select item).ToList(); }
+
 		#endregion
 
 		#region Methods
 
 		/// <summary>
-		/// Gets the default set of (ordered) tags.
+		/// Gets the default set of (ordered) tags for a type of bibliography entry.
 		/// </summary>
 		/// <param name="bibEntry">BibTex entry type.</param>
-		public List<string> GetTags(BibEntry bibEntry)
+		public List<string> GetDefaultTags(BibEntry bibEntry)
 		{
-			return GetTags(bibEntry.Type);
+			return GetDefaultTags(bibEntry.Type);
 		}
 
 		/// <summary>
-		/// Gets the default set of (ordered) tags.
+		/// Gets the default set of (ordered) tags for a type of bibliography entry.
 		/// </summary>
 		/// <param name="type">BibTex entry type.</param>
-		public List<string> GetTags(string type)
+		public List<string> GetDefaultTags(string type)
 		{
 			type = type.ToLower();
 
