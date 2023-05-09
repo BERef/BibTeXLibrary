@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DigitalProduction.Delegates;
+using DigitalProduction.Projects;
+using System;
 using System.ComponentModel;
 using System.Xml.Serialization;
 
@@ -7,9 +9,27 @@ namespace BibTeXLibrary
 	/// <summary>
 	/// Settings to use when writing a bib file.
 	/// </summary>
-	public class WriteSettings
+	public class WriteSettings : IModified
 	{
+		#region Events
+
+		/// <summary>
+		/// Occurs when the instance is modfied.
+		/// </summary>
+		public event NoArgumentsEventHandler OnModifiedChanged;
+
+		#endregion
+
 		#region Fields
+
+		private WhiteSpace			_whiteSpace			= WhiteSpace.Tab;
+		private int					_tabSize			= 4;
+		private bool				_alignTagValues		= true;
+		private int					_alignAtColumn		= 24;
+		private int					_alignAtTabStop		= 5;
+		private bool				_removeLastComma	= true;
+		private string				_newLine			= "\n";
+		private char				_tab				= '\t';
 
 		#endregion
 
@@ -27,52 +47,187 @@ namespace BibTeXLibrary
 		#region Properties
 
 		/// <summary>
+		/// Specifies if the project has been modified since last being saved/loaded.
+		/// </summary>
+		[XmlIgnore()]
+		public bool Modified
+		{
+			get
+			{
+				return false;
+			}
+
+			set
+			{
+				RaiseOnModifiedChangedEvent();
+			}
+		}
+
+		/// <summary>
 		/// Type of white space character to use.
 		/// </summary>
 		[XmlAttribute("whitespace")]
-		public WhiteSpace WhiteSpace { get; set; } = WhiteSpace.Tab;
+		public WhiteSpace WhiteSpace
+		{
+			get
+			{
+				return _whiteSpace;
+			}
+
+			set
+			{
+				if (_whiteSpace != value)
+				{
+					_whiteSpace = value;
+					this.Modified = true;
+				}
+			}
+		}
 
 		/// <summary>
 		/// The number of spaces per tab to use.
 		/// </summary>
 		[XmlAttribute("spacespertab")]
-		public int TabSize { get; set; } = 4;
+		public int TabSize
+		{
+			get
+			{
+				return _tabSize;
+			}
+			set
+			{
+				if (_tabSize != value)
+				{
+					_tabSize = value;
+					this.Modified = true;
+				}
+			}
+		}
 
 		/// <summary>
 		/// Specifies if the tag values should be aligned at the equal sign.
 		/// </summary>
 		[XmlAttribute("alignatequals")]
-		public bool AlignTagValues { get; set; } = true;
+		public bool AlignTagValues
+		{
+			get
+			{
+				return _alignTagValues;
+			}
+
+			set
+			{
+				if (_alignTagValues != value)
+				{
+					_alignTagValues = value;
+					this.Modified = true;
+				}
+			}
+		}
 
 		/// <summary>
 		/// Specifies the column number to align tag values at when using spaces as the white space.
 		/// </summary>
 		[XmlAttribute("alignatcolumn")]
-		public int AlignAtColumn { get; set; } = 20;
+		public int AlignAtColumn
+		{
+			get
+			{
+				return _alignAtColumn;
+			}
+			set
+			{
+				if (_alignAtColumn != value)
+				{
+					_alignAtColumn = value;
+					this.Modified = true;
+				}
+			}
+		}
 
 		/// <summary>
 		/// Specifies the tab stop number to align tag values at when using spaces as the white space.
 		/// </summary>
 		[XmlAttribute("alignattabstop")]
-		public int AlignAtTabStop { get; set; } = 4;
+		public int AlignAtTabStop
+		{
+			get
+			{
+				return _alignAtTabStop;
+			}
+
+			set
+			{
+				if (_alignAtTabStop != value)
+				{
+					_alignAtTabStop = value;
+					this.Modified = true;
+				}
+			}
+		}
 
 		/// <summary>
 		/// Remove the comma after the last tag in a BibEntry.
 		/// </summary>
 		[XmlAttribute("removelastcomma")]
-		public bool RemoveLastComma { get; set; } = true;
+		public bool RemoveLastComma
+		{
+			get
+			{
+				return _removeLastComma;
+			}
+
+			set
+			{
+				if (_removeLastComma != value)
+				{
+					_removeLastComma = value;
+					this.Modified = true;
+				}
+			}
+		}
 
 		/// <summary>
 		/// New line character or sequence.
 		/// </summary>
 		[XmlIgnore()]
-		public string NewLine { get; set; } = "\n";
+		public string NewLine
+		{
+			get
+			{
+				return _newLine;
+			}
+
+			set
+			{
+				if (_newLine != value)
+				{
+					_newLine = value;
+					this.Modified = true;
+				}
+			}
+		}
 
 		/// <summary>
 		/// Tab character or sequence.
 		/// </summary>
 		[XmlIgnore()]
-		public char Tab { get; set; } = '\t';
+		public char Tab
+		{
+			get
+			{
+				return _tab;
+			}
+
+			set
+			{
+				if (_tab != value)
+				{
+					_tab = value;
+					this.Modified = true;
+				}
+			}
+		}
 
 		/// <summary>
 		/// Get the same amount of white space a tab would take up as a string of spaces.
@@ -96,17 +251,13 @@ namespace BibTeXLibrary
 				switch (this.WhiteSpace)
 				{
 					case WhiteSpace.Tab:
-					{
 						return new string(this.Tab, 1);
-					}
+					
 					case WhiteSpace.Space:
-					{
 						return this.TabAsSpaces;
-					}
+					
 					default:
-					{
 						throw new InvalidEnumArgumentException("Invalid \"WhiteSpace\" value.");
-					}
 				}
 			}
 		}
@@ -172,6 +323,17 @@ namespace BibTeXLibrary
 				return " ";
 			}
 
+		}
+
+		/// <summary>
+		/// Access for manually firing event for external sources.
+		/// </summary>
+		private void RaiseOnModifiedChangedEvent()
+		{
+			if (OnModifiedChanged != null)
+			{
+				OnModifiedChanged();
+			}
 		}
 
 		#endregion
