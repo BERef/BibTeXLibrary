@@ -15,18 +15,6 @@ namespace BibTeXLibrary
 	[XmlRoot("bibentryinitialization")]
 	public class BibEntryInitialization
 	{
-		#region Enumerations
-
-		#endregion
-
-		#region Delegates
-
-		#endregion
-
-		#region Events
-
-		#endregion
-
 		#region Fields
 
 		private SerializableDictionary<string, string>			_typeToTemplateMap			= new SerializableDictionary<string, string>();
@@ -47,9 +35,15 @@ namespace BibTeXLibrary
 
 		#region Properties
 
+		/// <summary>
+		/// Type bibliography type to template map.
+		/// </summary>
 		[XmlElement("typetotemplatemap")]
 		public SerializableDictionary<string, string> TypeToTemplateMap { get => _typeToTemplateMap; set => _typeToTemplateMap = value; }
 
+		/// <summary>
+		/// The templates used to initialize a BibEntry.
+		/// </summary>
 		[XmlElement("templates")]
 		public SerializableDictionary<string, List<string>> Templates { get => _templates; set => _templates = value; }
 
