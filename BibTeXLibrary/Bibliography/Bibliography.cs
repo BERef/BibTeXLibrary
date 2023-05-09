@@ -1,12 +1,11 @@
-﻿using System;
+﻿using DigitalProduction.Strings;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Xml.Serialization;
 using System.Linq;
 using System.Text;
-using static System.Net.WebRequestMethods;
-using DigitalProduction.Strings;
+using System.Xml.Serialization;
 
 namespace BibTeXLibrary
 {

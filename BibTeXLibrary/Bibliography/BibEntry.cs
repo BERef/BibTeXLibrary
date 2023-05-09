@@ -1,18 +1,19 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace BibTeXLibrary
 {
-	using System.Collections;
-	using System.Linq;
-    using System.Runtime.CompilerServices;
-	using System.Runtime.InteropServices;
 
-    public class BibEntry : INotifyPropertyChanged
+	/// <summary>
+	/// A bibliography entry.
+	/// </summary>
+	public class BibEntry : INotifyPropertyChanged
 	{
 		#region Events
 
@@ -287,7 +288,6 @@ namespace BibTeXLibrary
 		/// </summary>
 		public List<string> TagNames { get => (from string item in _tags.Keys select item).ToList(); }
 
-
 		#endregion
 
 		#region Private Methods
@@ -304,17 +304,6 @@ namespace BibTeXLibrary
 		#endregion
 
 		#region Public Methods
-
-		/// <summary>
-		/// Initialize with a set of (ordered) tags.
-		/// </summary>
-		public void Initialize(List<string> tags)
-		{
-			foreach (string tag in tags)
-			{
-				this[tag] = "";
-			}
-		}
 
         /// <summary>
         /// Convert the BibTeX entry to a string.
@@ -374,15 +363,63 @@ namespace BibTeXLibrary
 			return bib.ToString();
         }
 
-        #endregion
+		#endregion
 
-        #region Public Tag Value
+		#region Public Tag Keys
 
-        /// <summary>
-        /// Get value by given tag name (index) or create new tag by index and value.
-        /// </summary>
-        /// <param name="tagName">Tag name.</param>
-        public string this[string tagName]
+		/// <summary>
+		/// Initialize with a set of (ordered) tags.
+		/// </summary>
+		public void Initialize(List<string> tags)
+		{
+			foreach (string tag in tags)
+			{
+				this[tag] = "";
+			}
+		}
+
+		/// <summary>
+		/// Change the Key of a tag.
+		/// </summary>
+		/// <param name="tagKey">Tag Key to change.</param>
+		/// <param name="newTagKey">New tag Key.</param>
+		/// <exception cref="ArgumentException">Thrown if the new tag Key already exists.</exception>
+		public void RenameTagKey(string tagKey, string newTagKey)
+		{
+			List<string> tagNames = this.TagNames;
+
+			// It should have already been checked that the key is contained before getting here.
+			System.Diagnostics.Debug.Assert(tagNames.Contains(tagKey));
+
+			TagValue value = GetTagValue(tagKey);
+
+			_tags.Remove(tagKey);
+
+			if (tagNames.Contains(newTagKey))
+			{
+				// The new tag key can exist, but it must be empty.  Don't overwrite existing content.
+				if (GetTagValue(newTagKey).Content != "")
+				{
+					throw new ArgumentException("The tag key \"" + newTagKey + "\" already exists.");
+				}
+
+				_tags[newTagKey] = value;
+			}
+			else
+			{
+				_tags.Add(newTagKey, value);
+			}
+		}
+
+		#endregion
+
+		#region Public Tag Value
+
+		/// <summary>
+		/// Get value by given tag name (index) or create new tag by index and value.
+		/// </summary>
+		/// <param name="tagName">Tag name.</param>
+		public string this[string tagName]
         {
             get
             {
