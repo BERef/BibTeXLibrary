@@ -21,6 +21,7 @@ namespace BibTeXLibrary
 		InEntry,
 		InKey,
 		OutKey,
+		InStringEntry,
 		InTagName,
 		InTagEqual,
 		InTagValue,

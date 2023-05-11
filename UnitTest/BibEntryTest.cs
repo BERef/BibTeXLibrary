@@ -32,17 +32,10 @@ namespace UnitTest
         public void TestSetType()
         {
             var entry = new BibEntry {Type = "inbook"};
-            Assert.AreEqual("InBook", entry.Type);
+            Assert.AreEqual("inbook", entry.Type);
 
             entry.Type = "inBoOK";
-            Assert.AreEqual("InBook", entry.Type);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void TestSetTypeWithInvalidValue()
-        {
-            new BibEntry {Type = "inbookK"};
+            Assert.AreEqual("inBoOK", entry.Type);
         }
 
         [TestMethod]
@@ -50,5 +43,6 @@ namespace UnitTest
         {
             //TODO:
         }
-    }
-}
+
+    } // End class.
+} // End namespace.

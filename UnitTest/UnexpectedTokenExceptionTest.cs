@@ -10,10 +10,11 @@ namespace UnitTest
         [TestMethod]
         public void TestConstructor()
         {
-            var e = new UnexpectedTokenException(1, 10, TokenType.EOF, TokenType.Comma, TokenType.RightBrace);
-            Assert.AreEqual(1,  e.LineNo);
-            Assert.AreEqual(10, e.ColNo);
-            Assert.AreEqual("Line 1, Col 10. Unexpected token: EOF. Expected: Comma, RightBrace", e.Message);
+            var exception = new UnexpectedTokenException(1, 10, TokenType.EOF, TokenType.Comma, TokenType.RightBrace);
+            Assert.AreEqual(1,  exception.LineNumber);
+            Assert.AreEqual(10, exception.ColumnNumber);
+            Assert.AreEqual("An unexpected token was found.\nToken: 'EOF'.\nAt line 1, column 10.\nExpected: Comma, RightBrace", exception.Message);
         }
-    }
-}
+
+	} // End class.
+} // End namespace.

@@ -29,21 +29,33 @@ namespace BibTeXLibrary
 		[Description("Equal")]
 		Equal,
 
-		/// <summary>End of File.</summary>
+		/// <summary>End of file.</summary>
 		[Description("End of File")]
 		EOF,
 
-		/// <summary>LeftBrace.</summary>
-		[Description("LeftBrace")]
+		/// <summary>Left brace.</summary>
+		[Description("Left Brace")]
 		LeftBrace,
+
+		/// <summary>Left parenthesis.</summary>
+		[Description("Left Parenthesis")]
+		LeftParenthesis,
 
 		/// <summary>Name.</summary>
 		[Description("Name")]
 		Name,
 
-		/// <summary>RightBrace.</summary>
-		[Description("RightBrace")]
+		/// <summary>Quotation.</summary>
+		[Description("Quotation")]
+		Quotation,
+
+		/// <summary>Right brace.</summary>
+		[Description("Right Brace")]
 		RightBrace,
+
+		/// <summary>Right parenthesis.</summary>
+		[Description("Right Parenthesis")]
+		RightParenthesis,
 
 		/// <summary>Start.</summary>
 		[Description("Start")]
@@ -52,6 +64,10 @@ namespace BibTeXLibrary
 		/// <summary>String.</summary>
 		[Description("String")]
 		String,
+
+		/// <summary>String type.  A BibTeX string definition type, i.e., "@string".</summary>
+		[Description("String Type")]
+		StringType,
 
 		/// <summary>The number of types/items in the enumeration.</summary>
 		[Description("Length")]

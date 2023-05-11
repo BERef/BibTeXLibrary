@@ -28,62 +28,70 @@ namespace BibTeXLibrary
 		private static readonly StateMap StateMap = new StateMap
         {
             {ParserState.Begin,       new Action {
-                { TokenType.Comment,       new Next(ParserState.InHeader,    BibBuilderState.SetHeader) }, 
-                { TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Create) }
+                { TokenType.Comment,			new Next(ParserState.InHeader,		BibBuilderState.SetHeader) }, 
+                { TokenType.Start,				new Next(ParserState.InStart,		BibBuilderState.Create) }
             } },
 
 			{ParserState.InHeader,    new Action {
-				{ TokenType.Comment,       new Next(ParserState.InHeader,    BibBuilderState.SetHeader) },
-				{ TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Create) }
+				{ TokenType.Comment,			new Next(ParserState.InHeader,		BibBuilderState.SetHeader) },
+				{ TokenType.Start,				new Next(ParserState.InStart,		BibBuilderState.Create) }
 			} },
 
 			{ParserState.InStart,     new Action {
-                { TokenType.Name,          new Next(ParserState.InEntry,     BibBuilderState.SetType) }
-            } },
+                { TokenType.Name,				new Next(ParserState.InEntry,		BibBuilderState.SetType) },
+				{ TokenType.StringType,			new Next(ParserState.InStringEntry,	BibBuilderState.SetType) }
+			} },
 
             {ParserState.InEntry,     new Action {
-                { TokenType.LeftBrace,     new Next(ParserState.InKey,       BibBuilderState.Skip) }
+                { TokenType.LeftBrace,			new Next(ParserState.InKey,			BibBuilderState.Skip) }
             } },
 
-            {ParserState.InKey,       new Action {
-                { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.Build) },
-                { TokenType.Name,          new Next(ParserState.OutKey,      BibBuilderState.SetKey) },
-                { TokenType.String,        new Next(ParserState.OutKey,      BibBuilderState.SetKey) },
-                { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.Skip) }
+			{ParserState.InStringEntry,     new Action {
+				{ TokenType.LeftBrace,			new Next(ParserState.InKey,         BibBuilderState.Skip) },
+				{ TokenType.LeftParenthesis,	new Next(ParserState.InKey,         BibBuilderState.Skip) }
+			} },
+
+			{ParserState.InKey,       new Action {
+                { TokenType.RightBrace,			new Next(ParserState.OutEntry,		BibBuilderState.Build) },
+                { TokenType.Name,				new Next(ParserState.OutKey,		BibBuilderState.SetKey) },
+                { TokenType.String,				new Next(ParserState.OutKey,		BibBuilderState.SetKey) },
+                { TokenType.Comma,				new Next(ParserState.InTagName,		BibBuilderState.Skip) }
 			} },
 
             {ParserState.OutKey,      new Action {
-                { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.Skip) }
+                { TokenType.Comma,				new Next(ParserState.InTagName,		BibBuilderState.Skip) }
             } },
 
             {ParserState.InTagName,   new Action {
-                { TokenType.Name,          new Next(ParserState.InTagEqual,  BibBuilderState.SetTagName) },
-                { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.Build) }
+                { TokenType.Name,				new Next(ParserState.InTagEqual,	BibBuilderState.SetTagName) },
+                { TokenType.RightBrace,			new Next(ParserState.OutEntry,		BibBuilderState.Build) }
             } },
 
             {ParserState.InTagEqual,  new Action {
-                { TokenType.Equal,         new Next(ParserState.InTagValue,  BibBuilderState.Skip) }
+                { TokenType.Equal,				new Next(ParserState.InTagValue,	BibBuilderState.Skip) }
              } },
 
             {ParserState.InTagValue,  new Action {
-                { TokenType.String,        new Next(ParserState.OutTagValue, BibBuilderState.SetTagValue) },
-                { TokenType.Name,          new Next(ParserState.OutTagValue, BibBuilderState.SetTagValue) }
+                { TokenType.String,				new Next(ParserState.OutTagValue,	BibBuilderState.SetTagValue) },
+                { TokenType.Name,				new Next(ParserState.OutTagValue,	BibBuilderState.SetTagValue) }
             } },
 
             {ParserState.OutTagValue, new Action {
-                { TokenType.Concatenation, new Next(ParserState.InTagValue,  BibBuilderState.Skip) },
-                { TokenType.Comma,         new Next(ParserState.InTagName,   BibBuilderState.SetTag) },
-                { TokenType.RightBrace,    new Next(ParserState.OutEntry,    BibBuilderState.Build) }
+                { TokenType.Concatenation,		new Next(ParserState.InTagValue,	BibBuilderState.Skip) },
+                { TokenType.Comma,				new Next(ParserState.InTagName,		BibBuilderState.SetTag) },
+                { TokenType.RightBrace,			new Next(ParserState.OutEntry,		BibBuilderState.Build) },
+                { TokenType.RightParenthesis,	new Next(ParserState.OutEntry,		BibBuilderState.Build) },
+                { TokenType.Comment,			new Next(ParserState.OutTagValue,	BibBuilderState.Skip) },
              } },
 
-            {ParserState.OutEntry,    new Action {
-                { TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Create) },
-                { TokenType.Comment,       new Next(ParserState.InComment,   BibBuilderState.Skip) }, 
+			{ParserState.OutEntry,    new Action {
+                { TokenType.Start,				new Next(ParserState.InStart,		BibBuilderState.Create) },
+                { TokenType.Comment,			new Next(ParserState.InComment,		BibBuilderState.Skip) }
             } },
 
             {ParserState.InComment,    new Action {
-                { TokenType.Start,         new Next(ParserState.InStart,     BibBuilderState.Create) },
-                { TokenType.Comment,       new Next(ParserState.InComment,   BibBuilderState.Skip) }, 
+                { TokenType.Start,				new Next(ParserState.InStart,		BibBuilderState.Create) },
+                { TokenType.Comment,			new Next(ParserState.InComment,		BibBuilderState.Skip) } 
             } },
 		};
 
@@ -366,28 +374,48 @@ namespace BibTeXLibrary
 
 						if (!IsStringCharacter(c)) break;
                     }
-                    yield return new Token(TokenType.Name, value.ToString());
+
+					string valueString = value.ToString();
+					TokenType tokenType = valueString.ToLower().Trim() == "string" ? TokenType.String : TokenType.Name;
+
+                    yield return new Token(tokenType, valueString);
                 }
                 else if (c == '"')
                 {
+					StringBuilder value		= new StringBuilder();
+					int internalBraceCount	= 0;
+
 					Read();
-
-					// Some entries have the unfortunate practice of using a start sequence of "{ and an end sequence of }".
-					// BibTeX seems to allow this.  We will treat "{ as a single { and similar for the closing sequence.  There,
-					// if we read "{, we ignore the quotation and continue.
-					if (Peek() != '{')
+					
+					while ((code = Peek()) != -1)
 					{
-						StringBuilder value = new StringBuilder();
-						while ((code = Peek()) != -1)
+						if (c == '{')
 						{
-							if (c != '\\' && code == '"') break;
-
-							c = (char)Read();
-							value.Append(c);
-
+							internalBraceCount++;
 						}
-						yield return new Token(TokenType.String, value.ToString());
+						else if (c == '}')
+						{
+							internalBraceCount--;
+						}
+
+						if (internalBraceCount == 0)
+						{
+							// We don't want to stop while we have open braces.  This is for cases like:
+							// title = "{This is a Title}"
+							// Stop when we find the quotation mark.  Don't stop for \".
+							if (c != '\\' && code == '"')
+							{
+								// Read the closing quote and exit.
+								Read();
+								break;
+							}
+						}
+
+						c = (char)Read();
+						value.Append(c);
+
 					}
+					yield return new Token(TokenType.String, value.ToString());
 				}
                 else if (c == '{')
                 {
@@ -401,6 +429,7 @@ namespace BibTeXLibrary
                         var value = new StringBuilder();
 						// Read the brace (was only peeked).
                         Read();
+
                         while (braceCount > 1 && Peek() != -1)
                         {
                             c = (char)Read();
@@ -433,7 +462,12 @@ namespace BibTeXLibrary
 					braceCount--;
                     yield return new Token(TokenType.RightBrace);
                 }
-                else if (c == ',')
+				else if (c == ')')
+				{
+					Read();
+					yield return new Token(TokenType.RightParenthesis);
+				}
+				else if (c == ',')
                 {
 					Read();
 					yield return new Token(TokenType.Comma);
