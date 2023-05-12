@@ -41,7 +41,7 @@ namespace BibTeXLibrary
 		[Description("Left Parenthesis")]
 		LeftParenthesis,
 
-		/// <summary>Name.</summary>
+		/// <summary>The value of a cite key, tag name, or name of a string definition.</summary>
 		[Description("Name")]
 		Name,
 
@@ -61,7 +61,7 @@ namespace BibTeXLibrary
 		[Description("Start")]
 		Start,
 
-		/// <summary>String.</summary>
+		/// <summary>String.  The contents of a tag value.</summary>
 		[Description("String")]
 		String,
 
