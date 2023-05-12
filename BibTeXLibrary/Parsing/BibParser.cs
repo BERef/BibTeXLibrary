@@ -11,6 +11,9 @@ namespace BibTeXLibrary
 	using Next		= Tuple<ParserState, BibBuilderState>;
 	using StateMap	= Dictionary<ParserState, Dictionary<TokenType, Tuple<ParserState, BibBuilderState>>>;
 
+	/// <summxary>
+	/// BibTeX file parser.
+	/// </summary>
 	public sealed class BibParser : IDisposable
     {
 		#region Static Fields
@@ -22,7 +25,7 @@ namespace BibTeXLibrary
 		#region Constant Fields
 
 		/// <summary>
-		/// State tranfer map
+		/// State tranfer map.
 		/// curState --Token--> (nextState, BibBuilderAction)
 		/// </summary>
 		private static readonly StateMap StateMap = new StateMap
@@ -47,8 +50,8 @@ namespace BibTeXLibrary
             } },
 
 			{ParserState.InStringEntry,     new Action {
-				{ TokenType.LeftBrace,			new Next(ParserState.InKey,         BibBuilderState.Skip) },
-				{ TokenType.LeftParenthesis,	new Next(ParserState.InKey,         BibBuilderState.Skip) }
+				{ TokenType.LeftBrace,			new Next(ParserState.InTagName,         BibBuilderState.Skip) },
+				{ TokenType.LeftParenthesis,	new Next(ParserState.InTagName,         BibBuilderState.Skip) }
 			} },
 
 			{ParserState.InKey,       new Action {
@@ -102,27 +105,27 @@ namespace BibTeXLibrary
         /// <summary>
         /// Input text stream.
         /// </summary>
-        private readonly TextReader _inputText;
+        private readonly TextReader		_inputText;
 
         /// <summary>
         /// Line No. counter.
         /// </summary>
-        private int _lineCount = 1;
+        private int						_lineCount					= 1;
 
         /// <summary>
         /// Column counter.
         /// </summary>
-        private int _colCount;
+        private int						_columnCount;
 
         /// <summary>
         /// File header.
         /// </summary>
-        private List<string> _header								= new List<string>();
+        private List<string>			_header						= new List<string>();
 
         /// <summary>
         /// Initializer for BibEntrys.  Used  to allow a defined order of tags.
         /// </summary>
-        private BibEntryInitialization _bibEntryInitialization		= new BibEntryInitialization();
+        private BibEntryInitialization	_bibEntryInitialization		= new BibEntryInitialization();
 
 		#endregion
 
@@ -273,7 +276,7 @@ namespace BibTeXLibrary
 					else
 					{
                         IEnumerable<TokenType> expected = from pair in StateMap[curState] select pair.Key;
-						throw new UnexpectedTokenException(_lineCount, _colCount, token.Type, expected.ToArray());
+						throw new UnexpectedTokenException(_lineCount, _columnCount, token.Type, expected.ToArray());
                     }
                     // Build BibEntry
                     switch (StateMap[curState][token.Type].Item2)
@@ -332,7 +335,7 @@ namespace BibTeXLibrary
                 if (curState != ParserState.OutEntry)
                 {
                     var expected = from pair in StateMap[curState] select pair.Key;
-                    throw new UnexpectedTokenException(_lineCount, _colCount, TokenType.EOF, expected.ToArray());
+                    throw new UnexpectedTokenException(_lineCount, _columnCount, TokenType.EOF, expected.ToArray());
                 }
             }
             finally
@@ -349,7 +352,8 @@ namespace BibTeXLibrary
         {
             int     code;
             char    c;
-            int     braceCount  = 0;
+            int     braceCount			= 0;
+			int		parenthesisCount	= 0;
 
             while ((code = Peek()) != -1)
             {
@@ -376,7 +380,7 @@ namespace BibTeXLibrary
                     }
 
 					string valueString = value.ToString();
-					TokenType tokenType = valueString.ToLower().Trim() == "string" ? TokenType.String : TokenType.Name;
+					TokenType tokenType = valueString.ToLower().Trim() == "string" ? TokenType.StringType : TokenType.Name;
 
                     yield return new Token(tokenType, valueString);
                 }
@@ -398,10 +402,9 @@ namespace BibTeXLibrary
 							internalBraceCount--;
 						}
 
+						// We don't want to stop while we have open braces.  This is for cases like: title = "{This is a Title}"
 						if (internalBraceCount == 0)
 						{
-							// We don't want to stop while we have open braces.  This is for cases like:
-							// title = "{This is a Title}"
 							// Stop when we find the quotation mark.  Don't stop for \".
 							if (c != '\\' && code == '"')
 							{
@@ -413,14 +416,18 @@ namespace BibTeXLibrary
 
 						c = (char)Read();
 						value.Append(c);
-
 					}
 					yield return new Token(TokenType.String, value.ToString());
 				}
-                else if (c == '{')
+				else if (c == '{')
                 {
-                    if (braceCount++ == 0)
+					// Braces have to be handled differently depending on if the are the opening bracket for a group or
+					// internal backets used to internally group for keeping capital letters, et cetera.
+					// To parse BibTex strings, we have to allow for a parentheses used as the grouping characters, so we need
+					// to also prevent returning the left bracket in those cases.
+                    if (braceCount == 0 && parenthesisCount == 0)
                     {
+						braceCount++;
 						Read();
 						yield return new Token(TokenType.LeftBrace);
                     }
@@ -429,31 +436,25 @@ namespace BibTeXLibrary
                         var value = new StringBuilder();
 						// Read the brace (was only peeked).
                         Read();
-
-                        while (braceCount > 1 && Peek() != -1)
+						int internalBraceCount = 1;
+						while (internalBraceCount > 0 && Peek() != -1)
                         {
                             c = (char)Read();
 							if (c == '{')
 							{
-								braceCount++;
+								internalBraceCount++;
 							}
 							else if (c == '}')
 							{
-								braceCount--;
+								internalBraceCount--;
 							}
 
-							if (braceCount > 1)
+							if (internalBraceCount > 0)
 							{
 								value.Append(c);
 							}
 						}
                         yield return new Token(TokenType.String, value.ToString());
-
-						// Ignore the quotation in a }" combination.
-						if (Peek() == '"')
-						{
-							Read();
-						}
                     }
                 }
                 else if (c == '}')
@@ -462,9 +463,16 @@ namespace BibTeXLibrary
 					braceCount--;
                     yield return new Token(TokenType.RightBrace);
                 }
+				else if (c == '(')
+				{
+					Read();
+					parenthesisCount++;
+					yield return new Token(TokenType.LeftParenthesis);
+				}
 				else if (c == ')')
 				{
 					Read();
+					parenthesisCount--;
 					yield return new Token(TokenType.RightParenthesis);
 				}
 				else if (c == ',')
@@ -485,18 +493,18 @@ namespace BibTeXLibrary
                 else if (c == '\n')
                 {
 					Read();
-                    _colCount = 0;
+                    _columnCount = 0;
                     _lineCount++;
                 }
                 else if (_beginCommentCharacters.Any(item => item == c))
                 {
-                    _colCount = 0;
+                    _columnCount = 0;
                     _lineCount++;
                     yield return new Token(TokenType.Comment, _inputText.ReadLine());
 				}
                 else if (!char.IsWhiteSpace(c))
                 {
-                    throw new UnrecognizableCharacterException(_lineCount, _colCount, c);
+                    throw new UnrecognizableCharacterException(_lineCount, _columnCount, c);
                 }
 				else
 				{
@@ -540,7 +548,7 @@ namespace BibTeXLibrary
         /// <returns></returns>
         private int Read()
         {
-            _colCount++;
+            _columnCount++;
 			if (_inputText.Peek() != -1)
 			{
 				return _inputText.Read();
