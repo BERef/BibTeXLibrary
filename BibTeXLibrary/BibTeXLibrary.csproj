@@ -48,7 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bibliography\BibEntryInitialization.cs" />
-    <Compile Include="Bibliography\BibliographDOM.cs" />
+    <Compile Include="Bibliography\BibliographyDOM.cs" />
     <Compile Include="Bibliography\TagValue.cs" />
     <Compile Include="Enums\BibBuilderState.cs" />
     <Compile Include="Bibliography\BibEntry.cs" />

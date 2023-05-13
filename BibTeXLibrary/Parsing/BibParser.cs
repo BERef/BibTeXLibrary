@@ -118,11 +118,6 @@ namespace BibTeXLibrary
         private int						_columnCount;
 
         /// <summary>
-        /// File header.
-        /// </summary>
-        private List<string>			_header						= new List<string>();
-
-        /// <summary>
         /// Initializer for BibEntrys.  Used  to allow a defined order of tags.
         /// </summary>
         private BibEntryInitialization	_bibEntryInitialization		= new BibEntryInitialization();
@@ -135,11 +130,6 @@ namespace BibTeXLibrary
 		/// Initializer for BibEntrys.  Used  to allow a defined order of tags.
 		/// </summary>
 		public BibEntryInitialization BibEntryInitializer { get => _bibEntryInitialization; set => _bibEntryInitialization = value; }
-
-        /// <summary>
-        /// Bibliography header text.
-        /// </summary>
-		public List<string> Header { get => _header; set => _header = value; }
 
 		#endregion
 
@@ -203,12 +193,11 @@ namespace BibTeXLibrary
 		/// Parse by given input text reader.
 		/// </summary>
 		/// <param name="inputText">TextReader containing the input text to be parsed.</param>
-		public static Tuple<List<string>, List<BibEntry>> Parse(TextReader inputText)
+		public static BibliographyDOM Parse(TextReader inputText)
         {
             using (BibParser parser = new BibParser(inputText))
             {
-				List<BibEntry> entries = parser.Parse().ToList();
-				return new Tuple<List<string>, List<BibEntry>>(parser._header, entries);
+				return parser.Parse();
             }
         }
 
@@ -217,7 +206,7 @@ namespace BibTeXLibrary
 		/// </summary>
 		/// <param name="inputText">TextReader containing the input text to be parsed.</param>
 		/// <param name="bibEntryInitializationFile">Path of the BibEntry initialization information.</param>
-		public static Tuple<List<string>, List<BibEntry>> Parse(TextReader inputText, string bibEntryInitializationFile)
+		public static BibliographyDOM Parse(TextReader inputText, string bibEntryInitializationFile)
 		{
 			return Parse(inputText, BibEntryInitialization.Deserialize(bibEntryInitializationFile));
 		}
@@ -227,12 +216,11 @@ namespace BibTeXLibrary
 		/// </summary>
 		/// <param name="inputText">TextReader containing the input text to be parsed.</param>
 		/// <param name="bibEntryInitialization">BibEntryInitialization.</param>
-		public static Tuple<List<string>, List<BibEntry>> Parse(TextReader inputText, BibEntryInitialization bibEntryInitialization)
+		public static BibliographyDOM Parse(TextReader inputText, BibEntryInitialization bibEntryInitialization)
 		{
 			using (BibParser parser = new BibParser(inputText, bibEntryInitialization))
 			{
-				List<BibEntry> entries = parser.Parse().ToList();
-				return new Tuple<List<string>, List<BibEntry>>(parser._header, entries);
+				return parser.Parse();
 			}
 		}
 
@@ -243,20 +231,21 @@ namespace BibTeXLibrary
 		/// <summary>
 		/// Get all results from the Parser.
 		/// </summary>
-		public Tuple<List<string>, List<BibEntry>> GetAllResults()
+		public BibliographyDOM GetAllResults()
         {
-			List<BibEntry> entries = Parse().ToList();
-			return new Tuple<List<string>, List<BibEntry>>(_header, entries);
+			return Parse();
         }
 
 		#endregion
 
 		#region Private Methods
 
-		private IEnumerable<BibEntry> Parse()
+		private BibliographyDOM Parse()
         {
-            try
-            {
+			BibliographyDOM bibliographyDOM = new BibliographyDOM();
+
+			try
+			{
 				ParserState		curState			= ParserState.Begin;
 				ParserState		nextState			= ParserState.Begin;
 
@@ -282,7 +271,7 @@ namespace BibTeXLibrary
                     switch (StateMap[curState][token.Type].Item2)
                     {
                         case BibBuilderState.SetHeader:
-                            _header.Add(token.Value);
+							bibliographyDOM.AddHeaderLine(token.Value);
                             break;
 
                         case BibBuilderState.Create:
@@ -327,7 +316,7 @@ namespace BibTeXLibrary
                                 tagValueBuilder.Clear();
                                 tagName = string.Empty;
                             }
-                            yield return bibEntry;
+							bibliographyDOM.AddBibEntry(bibEntry);
                             break;
                     }
                     curState = nextState;
@@ -342,6 +331,8 @@ namespace BibTeXLibrary
             {
                 Dispose();
             }
+
+			return bibliographyDOM;
         }
 
         /// <summary>

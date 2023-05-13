@@ -17,9 +17,7 @@ namespace BibTeXLibrary
 		#region Fields
 
 		public static string[]					_nameSuffixes					= { "jr", "jr.", "sr", "sr.", "ii", "iii", "iv", "v", @"p\`{e}re", "fils" };
-
-		private List<string>					_header;
-		private BindingList<BibEntry>			_entries						= new BindingList<BibEntry>();
+		private BibliographyDOM					_bibliographyDOM				= new BibliographyDOM();
 
 		#endregion
 
@@ -45,11 +43,7 @@ namespace BibTeXLibrary
 		{
 			get
 			{
-				return _entries;
-			}
-			set
-			{
-				_entries = value;
+				return _bibliographyDOM.BibiographyEntries;
 			}
 		}
 
@@ -66,7 +60,7 @@ namespace BibTeXLibrary
 		public void Read(string bibFilePath)
 		{
 			BibParser parser = new BibParser(bibFilePath);
-			GetResults(parser);
+			_bibliographyDOM = parser.GetAllResults();
 		}
 
 		/// <summary>
@@ -77,24 +71,7 @@ namespace BibTeXLibrary
 		public void Read(string bibFilePath, string bibEntryInitializationFile)
 		{
 			BibParser parser = new BibParser(bibFilePath, bibEntryInitializationFile);
-			GetResults(parser);
-		}
-
-		/// <summary>
-		/// Gets the results from the parser.
-		/// </summary>
-		/// <param name="parser">BibParser used to read the file.</param>
-		private void GetResults(BibParser parser)
-		{
-			BibliographyDOM documentObjectModel = parser.GetAllResults();
-
-			_header = results.Item1;
-
-			_entries.Clear();
-			foreach (BibEntry bibEntry in results.Item2)
-			{
-				_entries.Add(bibEntry);
-			}
+			_bibliographyDOM = parser.GetAllResults();
 		}
 
 		/// <summary>
@@ -122,13 +99,13 @@ namespace BibTeXLibrary
 
 				// Write the header.  The header is stored as separate lines so when we write it we can use
 				// the expected line ending type (\r\n, \n) used by the writer.
-				foreach (string line in _header)
+				foreach (string line in _bibliographyDOM.Header)
 				{
 					streamWriter.WriteLine(line);
 				}
 
 				// Write each entry with a blank line preceeding it.
-				foreach (BibEntry bibEntry in _entries)
+				foreach (BibEntry bibEntry in _bibliographyDOM.BibiographyEntries)
 				{
 					streamWriter.WriteLine();
 					streamWriter.Write(bibEntry.ToString(writeSettings));
@@ -141,7 +118,7 @@ namespace BibTeXLibrary
 		/// </summary>
 		public void Close()
 		{
-			_entries.Clear();
+			_bibliographyDOM.Dispose();
 		}
 
 		#endregion
@@ -245,7 +222,7 @@ namespace BibTeXLibrary
 			// However, this could be confusing or error prone, so (for now anyway) we will do a case insensitive comparison.
 			key = key.ToLower();
 
-			foreach (BibEntry entry in _entries)
+			foreach (BibEntry entry in _bibliographyDOM.BibiographyEntries)
 			{
 				if (entry.Key.ToLower() == key)
 				{

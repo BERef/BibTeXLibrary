@@ -15,9 +15,9 @@ namespace BibTeXLibrary
 	{
 		#region Fields
 
-		private List<string>		_header;
-		private List<BibEntry>		_bibEntries;
-		private List<BibEntry>		_string;
+		private List<string>				_header				= new List<string>();
+		private BindingList<BibEntry>		_bibEntries			= new BindingList<BibEntry>();
+		private List<BibEntry>				_strings			= new List<BibEntry>();
 
 		#endregion
 
@@ -30,17 +30,63 @@ namespace BibTeXLibrary
 		{
 		}
 
+		/// <summary>
+		/// Clean up.
+		/// </summary>
+		public void Dispose()
+		{
+			_header		= null;
+			_bibEntries = null;
+			_strings	= null;
+		}
+
 		#endregion
 
 		#region Properties
+
+		/// <summary>
+		/// The file header.
+		/// </summary>
+		public List<string> Header { get { return _header; } }
+
+		/// <summary>
+		/// Get the bibliography entries.
+		/// </summary>
+		public BindingList<BibEntry> BibiographyEntries { get => _bibEntries; }
+
+		/// <summary>
+		/// String constants.
+		/// </summary>
+		public List<BibEntry> StringConstants { get => _strings; }
 
 		#endregion
 
 		#region Methods
 
-		#endregion
+		/// <summary>
+		/// Add a bibliography entry or a string.
+		/// </summary>
+		/// <param name="entry">BibEntry.</param>
+		public void AddBibEntry(BibEntry entry)
+		{
+			if (entry.Type.ToLower() == "string")
+			{
+				_strings.Add(entry);
+			}
+			else
+			{
+				_bibEntries.Add(entry);
+			}
+		}
 
-		#region XML
+		/// <summary>
+		/// Add a line to the header.
+		/// </summary>
+		/// <param name="line">Line to add.</param>
+		public void AddHeaderLine(string line)
+		{
+			_header.Add(line);
+		}
 
 		#endregion
 
