@@ -11,9 +11,13 @@ namespace BibTeXLibrary
 	/// <summary>
 	/// Bibliography Document Object Model.
 	/// </summary>
-	public class BibliographDOM
+	public class BibliographyDOM
 	{
 		#region Fields
+
+		private List<string>		_header;
+		private List<BibEntry>		_bibEntries;
+		private List<BibEntry>		_string;
 
 		#endregion
 
@@ -22,7 +26,7 @@ namespace BibTeXLibrary
 		/// <summary>
 		/// Default constructor.
 		/// </summary>
-		public BibliographDOM()
+		public BibliographyDOM()
 		{
 		}
 

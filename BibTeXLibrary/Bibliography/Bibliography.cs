@@ -86,7 +86,7 @@ namespace BibTeXLibrary
 		/// <param name="parser">BibParser used to read the file.</param>
 		private void GetResults(BibParser parser)
 		{
-			Tuple<List<string>, List<BibEntry>> results = parser.GetAllResults();
+			BibliographyDOM documentObjectModel = parser.GetAllResults();
 
 			_header = results.Item1;
 
