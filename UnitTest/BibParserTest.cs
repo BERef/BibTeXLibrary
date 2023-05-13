@@ -1,20 +1,20 @@
-﻿using System.IO;
+﻿using BibTeXLibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using BibTeXLibrary;
-using System.Text;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Text;
 
 namespace UnitTest
 {
-    [TestClass]
+	[TestClass]
     public class BibParserTest
     {
         [TestMethod]
         public void TestParserRegularBibEntry()
         {
 			BibParser parser = new BibParser(new StringReader("@Article{keyword, title = {\"0\"{123}456{789}}, year = 2012, address=\"PingLeYuan\"}"));
-			BibEntry entry = parser.GetAllResults().Item2[0];
+			BibEntry entry = parser.GetAllResults().BibiographyEntries[0];
 
             Assert.AreEqual("Article"           , entry.Type);
             Assert.AreEqual("\"0\"{123}456{789}", entry.Title);
@@ -28,7 +28,7 @@ namespace UnitTest
         public void TestParserString()
         {
 			BibParser parser = new BibParser(new StringReader("@article{keyword, title = \"hello \\\"world\\\"\", address=\"Ping\" # \"Le\" # \"Yuan\",}"));
-			BibEntry entry = parser.GetAllResults().Item2[0];
+			BibEntry entry = parser.GetAllResults().BibiographyEntries[0];
 
             Assert.AreEqual("article"            , entry.Type);
             Assert.AreEqual("hello \\\"world\\\"", entry.Title);
@@ -41,7 +41,7 @@ namespace UnitTest
         public void TestParserWithoutKey()
         {
 			BibParser parser = new BibParser(new StringReader("@book{, title = {}}"));
-			BibEntry entry = parser.GetAllResults().Item2[0];
+			BibEntry entry = parser.GetAllResults().BibiographyEntries[0];
 
             Assert.AreEqual("book", entry.Type);
             Assert.AreEqual(""    , entry.Title);
@@ -53,7 +53,7 @@ namespace UnitTest
         public void TestParserWithoutKeyAndTags()
         {
 			BibParser parser = new BibParser(new StringReader("@book{}"));
-            BibEntry entry = parser.GetAllResults().Item2[0];
+            BibEntry entry = parser.GetAllResults().BibiographyEntries[0];
 
             Assert.AreEqual("book", entry.Type);
 
@@ -114,7 +114,7 @@ namespace UnitTest
         public void TestParserWithBibFile()
         {
 			BibParser parser = new BibParser(new StreamReader("TestData/BibParserTest1_In.bib", Encoding.Default));
-			List<BibEntry> entries = parser.GetAllResults().Item2;
+			BindingList<BibEntry> entries = parser.GetAllResults().BibiographyEntries;
 
             Assert.AreEqual(4,														entries.Count);
             Assert.AreEqual("nobody",												entries[0].Publisher);
@@ -126,7 +126,7 @@ namespace UnitTest
         [TestMethod]
         public void TestStaticParseWithBibFile()
         {
-            List<BibEntry> entries = BibParser.Parse(new StreamReader("TestData/BibParserTest1_In.bib", Encoding.Default)).Item2;
+            BindingList<BibEntry> entries = BibParser.Parse(new StreamReader("TestData/BibParserTest1_In.bib", Encoding.Default)).BibiographyEntries;
 
             Assert.AreEqual(4,														entries.Count);
             Assert.AreEqual("nobody",												entries[0].Publisher);
@@ -138,7 +138,7 @@ namespace UnitTest
         public void TestParserResult()
         {
 			BibParser parser = new BibParser(new StreamReader("TestData/BibParserTest1_In.bib", Encoding.Default));
-            BibEntry entry	= parser.GetAllResults().Item2[0];
+            BibEntry entry	= parser.GetAllResults().BibiographyEntries[0];
 
 			StreamReader sr = new StreamReader("TestData/BibParserTest1_Out1.bib", Encoding.Default);
             string expected = sr.ReadToEnd().Replace("\r", "");
@@ -152,7 +152,7 @@ namespace UnitTest
 		public void TestParserBibStringWithBrackets()
 		{
 			BibParser parser = new BibParser(new StringReader("@string{NAME = {Title of Conference}}"));
-			BibEntry entry = parser.GetAllResults().Item2[0];
+			BibEntry entry = parser.GetAllResults().StringConstants[0];
 
 			Assert.AreEqual("string", entry.Type);
 			Assert.AreEqual("Title of Conference", entry["NAME"]);
@@ -165,7 +165,7 @@ namespace UnitTest
 		public void TestParserBibStringWithParentheses()
 		{
 			BibParser parser = new BibParser(new StringReader("@string(NAME = {Title of Conference})"));
-			BibEntry entry = parser.GetAllResults().Item2[0];
+			BibEntry entry = parser.GetAllResults().StringConstants[0];
 
 			Assert.AreEqual("string", entry.Type);
 			Assert.AreEqual("Title of Conference", entry["NAME"]);
@@ -177,7 +177,7 @@ namespace UnitTest
 		public void TestParserBibStringWithBracketsAndQuotes()
 		{
 			BibParser parser = new BibParser(new StringReader("@string{NAME = \"Title of Conference\"}"));
-			BibEntry entry = parser.GetAllResults().Item2[0];
+			BibEntry entry = parser.GetAllResults().StringConstants[0];
 
 			Assert.AreEqual("string", entry.Type);
 			Assert.AreEqual("Title of Conference", entry["NAME"]);
@@ -189,7 +189,7 @@ namespace UnitTest
 		public void TestParserBibStringWithParenthesisAndQuotes()
 		{
 			BibParser parser = new BibParser(new StringReader("@string(NAME = \"Title of Conference\")"));
-			BibEntry entry = parser.GetAllResults().Item2[0];
+			BibEntry entry = parser.GetAllResults().StringConstants[0];
 
 			Assert.AreEqual("string", entry.Type);
 			Assert.AreEqual("Title of Conference", entry["NAME"]);

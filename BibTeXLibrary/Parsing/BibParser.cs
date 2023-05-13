@@ -190,6 +190,18 @@ namespace BibTeXLibrary
 		#region Public Static Methods
 
 		/// <summary>
+		/// Parse a file at the specified path..
+		/// </summary>
+		/// <param name="path">Full path and file name to the file to reader.</param>
+		public static BibliographyDOM Parse(string path)
+		{
+			using (BibParser parser = new BibParser(path))
+			{
+				return parser.Parse();
+			}
+		}
+
+		/// <summary>
 		/// Parse by given input text reader.
 		/// </summary>
 		/// <param name="inputText">TextReader containing the input text to be parsed.</param>
