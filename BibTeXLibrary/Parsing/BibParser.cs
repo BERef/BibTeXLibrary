@@ -32,12 +32,12 @@ namespace BibTeXLibrary
         {
             {ParserState.Begin,       new Action {
                 { TokenType.Comment,			new Next(ParserState.InHeader,		BibBuilderState.SetHeader) }, 
-                { TokenType.Start,				new Next(ParserState.InStart,		BibBuilderState.Create) }
+                { TokenType.Start,				new Next(ParserState.InStart,		BibBuilderState.Skip) }
             } },
 
 			{ParserState.InHeader,    new Action {
 				{ TokenType.Comment,			new Next(ParserState.InHeader,		BibBuilderState.SetHeader) },
-				{ TokenType.Start,				new Next(ParserState.InStart,		BibBuilderState.Create) }
+				{ TokenType.Start,				new Next(ParserState.InStart,		BibBuilderState.Skip) }
 			} },
 
 			{ParserState.InStart,     new Action {
@@ -88,12 +88,12 @@ namespace BibTeXLibrary
              } },
 
 			{ParserState.OutEntry,    new Action {
-                { TokenType.Start,				new Next(ParserState.InStart,		BibBuilderState.Create) },
+                { TokenType.Start,				new Next(ParserState.InStart,		BibBuilderState.Skip) },
                 { TokenType.Comment,			new Next(ParserState.InComment,		BibBuilderState.Skip) }
             } },
 
             {ParserState.InComment,    new Action {
-                { TokenType.Start,				new Next(ParserState.InStart,		BibBuilderState.Create) },
+                { TokenType.Start,				new Next(ParserState.InStart,		BibBuilderState.Skip) },
                 { TokenType.Comment,			new Next(ParserState.InComment,		BibBuilderState.Skip) } 
             } },
 		};
@@ -258,13 +258,13 @@ namespace BibTeXLibrary
 
 			try
 			{
-				ParserState		curState			= ParserState.Begin;
-				ParserState		nextState			= ParserState.Begin;
+				ParserState				curState			= ParserState.Begin;
+				ParserState				nextState			= ParserState.Begin;
 
-                BibEntry		bibEntry			= null;
-                string			tagName				= "";
-				bool			tagValueIsString	= false;
-				StringBuilder	tagValueBuilder		= new StringBuilder();
+                BibliographyPart		bibPart				= null;
+                string					tagName				= "";
+				bool					tagValueIsString	= false;
+				StringBuilder			tagValueBuilder		= new StringBuilder();
 
                 // Fetch token from Tokenizer and build BibEntry.
                 foreach (Token token in Tokenize())
@@ -286,19 +286,25 @@ namespace BibTeXLibrary
 							bibliographyDOM.AddHeaderLine(token.Value);
                             break;
 
-                        case BibBuilderState.Create:
-                            bibEntry = new BibEntry();
-                            break;
-
                         case BibBuilderState.SetType:
-                            Debug.Assert(bibEntry != null, "bib != null");
-                            bibEntry.Type = token.Value;
-                            bibEntry.Initialize(_bibEntryInitialization.GetDefaultTags(bibEntry));
+							if (token.Value == "string")
+							{
+								bibPart = new StringConstantPart();
+								bibPart.Type = token.Value;
+							}
+							else
+							{
+								// Must add the value before doing the initialization.
+								BibEntry bibEntry = new BibEntry();
+								bibEntry.Type = token.Value;
+								bibEntry.Initialize(_bibEntryInitialization.GetDefaultTags(bibEntry));
+								bibPart = bibEntry;
+							}
 							break;
 
                         case BibBuilderState.SetKey:
-                            Debug.Assert(bibEntry != null, "bib != null");
-                            bibEntry.Key = token.Value;
+                            Debug.Assert(bibPart != null, "bib != null");
+                            bibPart.Key = token.Value;
                             break;
 
                         case BibBuilderState.SetTagName:
@@ -314,8 +320,8 @@ namespace BibTeXLibrary
                             break;
 
                         case BibBuilderState.SetTag:
-                            Debug.Assert(bibEntry != null, "bib != null");
-							bibEntry.SetTagValue(tagName, new TagValue(tagValueBuilder.ToString(), tagValueIsString));
+                            Debug.Assert(bibPart != null, "bib != null");
+							bibPart.SetTagValue(tagName, new TagValue(tagValueBuilder.ToString(), tagValueIsString));
                             tagValueBuilder.Clear();
                             tagName = string.Empty;
                             break;
@@ -323,12 +329,12 @@ namespace BibTeXLibrary
                         case BibBuilderState.Build:
                             if (tagName != string.Empty)
                             {
-                                Debug.Assert(bibEntry != null, "bib != null");
-                                bibEntry[tagName] = tagValueBuilder.ToString();
+                                Debug.Assert(bibPart != null, "bib != null");
+                                bibPart[tagName] = tagValueBuilder.ToString();
                                 tagValueBuilder.Clear();
                                 tagName = string.Empty;
                             }
-							bibliographyDOM.AddBibEntry(bibEntry);
+							bibliographyDOM.AddBibPart(bibPart);
                             break;
                     }
                     curState = nextState;

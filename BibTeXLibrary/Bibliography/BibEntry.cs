@@ -20,7 +20,8 @@ namespace BibTeXLibrary
         /// <summary>
         /// Default contructor.
         /// </summary>
-        public BibEntry()
+        public BibEntry() :
+			base(false)
         {
         }
 
@@ -373,52 +374,6 @@ namespace BibTeXLibrary
 			{
 				_tags.Add(newTagKey, value);
 			}
-		}
-
-		#endregion
-
-		#region Public Tag Value
-
-		/// <summary>
-		/// Get value by given tag name (index) or create new tag by index and value.
-		/// </summary>
-		/// <param name="tagName">Tag name.</param>
-		public string this[string tagName]
-        {
-            get
-            {
-                tagName = tagName.ToLower();
-                return _tags.Contains(tagName) ? ((TagValue)_tags[tagName]).Content : "";
-            }
-            set
-            {
-				if (_tags.Contains(tagName))
-				{
-					((TagValue)_tags[tagName.ToLower()]).Content = value;
-				}
-				else
-				{
-					_tags[tagName.ToLower()] = new TagValue(value);
-				}
-            }
-        }
-
-		/// <summary>
-		/// Get a TagValue.
-		/// </summary>
-		/// <param name="tagName">Name of the tag to get.</param>
-		public TagValue GetTagValue(string tagName)
-		{
-			return (TagValue)_tags[tagName.ToLower()];
-		}
-
-		/// <summary>
-		/// Set a TagValue.
-		/// </summary>
-		/// <param name="tagName">Name of the tag to get.</param>
-		public void SetTagValue(string tagName, TagValue tagValue)
-		{
-			_tags[tagName.ToLower()] = tagValue;
 		}
 
 		#endregion

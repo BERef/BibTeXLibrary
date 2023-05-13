@@ -23,7 +23,8 @@ namespace BibTeXLibrary
 		/// <summary>
 		/// Default constructor.
 		/// </summary>
-		public StringConstantPart()
+		public StringConstantPart() :
+			base(true)
 		{
 		}
 

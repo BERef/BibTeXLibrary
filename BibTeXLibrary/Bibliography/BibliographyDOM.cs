@@ -17,7 +17,7 @@ namespace BibTeXLibrary
 
 		private List<string>				_header				= new List<string>();
 		private BindingList<BibEntry>		_bibEntries			= new BindingList<BibEntry>();
-		private List<BibEntry>				_strings			= new List<BibEntry>();
+		private List<StringConstantPart>	_strings			= new List<StringConstantPart>();
 
 		#endregion
 
@@ -57,7 +57,7 @@ namespace BibTeXLibrary
 		/// <summary>
 		/// String constants.
 		/// </summary>
-		public List<BibEntry> StringConstants { get => _strings; }
+		public List<StringConstantPart> StringConstants { get => _strings; }
 
 		#endregion
 
@@ -66,16 +66,16 @@ namespace BibTeXLibrary
 		/// <summary>
 		/// Add a bibliography entry or a string.
 		/// </summary>
-		/// <param name="entry">BibEntry.</param>
-		public void AddBibEntry(BibEntry entry)
+		/// <param name="part">BibliographyPart.</param>
+		public void AddBibPart(BibliographyPart part)
 		{
-			if (entry.Type.ToLower() == "string")
+			if (part.Type.ToLower() == "string")
 			{
-				_strings.Add(entry);
+				_strings.Add((StringConstantPart)part);
 			}
 			else
 			{
-				_bibEntries.Add(entry);
+				_bibEntries.Add((BibEntry)part);
 			}
 		}
 

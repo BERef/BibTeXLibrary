@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -30,10 +31,13 @@ namespace BibTeXLibrary
 		protected string                            _type;
 
 		/// <summary>Cite key.</summary>
-		protected string							_key;
+		protected string                            _key;
 
 		/// <summary>Store all tags.</summary>
-		protected readonly OrderedDictionary		_tags			= new OrderedDictionary();
+		protected readonly OrderedDictionary        _tags						= new OrderedDictionary();
+
+		/// <summary>Specifies if the tags are case sensitive.</summary>
+		private bool                                _caseSensitivetags;
 
 		#endregion
 
@@ -42,8 +46,9 @@ namespace BibTeXLibrary
 		/// <summary>
 		/// Default constructor.
 		/// </summary>
-		public BibliographyPart()
+		public BibliographyPart(bool caseSensitivetags)
 		{
+			_caseSensitivetags = caseSensitivetags;
 		}
 
 		#endregion
@@ -78,7 +83,108 @@ namespace BibTeXLibrary
 
 		#endregion
 
-		#region Methods
+		#region Public Methods
+
+		public string FindTagValue(string value, bool caseSensitive = false)
+		{
+			string result = "";
+			string matchValue = caseSensitive ? value : value.ToLower();
+
+			IDictionaryEnumerator tagEnumerator = _tags.GetEnumerator();
+			while (tagEnumerator.MoveNext())
+			{
+				string tagValue = tagEnumerator.Value.ToString();
+				if (!caseSensitive)
+				{
+					tagValue = tagValue.ToLower();
+				}
+
+				if (tagValue == matchValue)
+				{
+					result = tagEnumerator.Key.ToString();
+					break;
+				}
+			}
+
+			return result;
+		}
+
+		#endregion
+
+		#region Public Tag Value Methods
+
+		/// <summary>
+		/// Get value by given tag name (index) or create new tag by index and value.
+		/// </summary>
+		/// <param name="tagName">Tag name.</param>
+		public string this[string tagName]
+		{
+			get
+			{
+				if (!_caseSensitivetags)
+				{
+					tagName = tagName.ToLower();
+				}
+				return _tags.Contains(tagName) ? ((TagValue)_tags[tagName]).Content : "";
+			}
+			set
+			{
+				if (!_caseSensitivetags)
+				{
+					tagName = tagName.ToLower();
+				}
+
+				if (_tags.Contains(tagName))
+				{
+					((TagValue)_tags[tagName]).Content = value;
+				}
+				else
+				{
+					_tags[tagName] = new TagValue(value);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Get a TagValue.
+		/// </summary>
+		/// <param name="tagName">Name of the tag to get.</param>
+		public TagValue GetTagValue(string tagName)
+		{
+			if (!_caseSensitivetags)
+			{
+				tagName = tagName.ToLower();
+			}
+			return (TagValue)_tags[tagName];
+		}
+
+		/// <summary>
+		/// Set a TagValue.
+		/// </summary>
+		/// <param name="tagName">Name of the tag to get.</param>
+		public void SetTagValue(string tagName, string tagValue)
+		{
+			if (_caseSensitivetags)
+			{
+				tagName = tagName.ToLower();
+			}
+			TagValue tagValueObject		= GetTagValue(tagName);
+			tagValueObject.Content		= tagValue;
+			_tags[tagName]				= tagValueObject;
+		}
+
+		/// <summary>
+		/// Set a TagValue.
+		/// </summary>
+		/// <param name="tagName">Name of the tag to get.</param>
+		public void SetTagValue(string tagName, TagValue tagValue)
+		{
+			if (!_caseSensitivetags)
+			{
+				tagName = tagName.ToLower();
+			}
+			_tags[tagName] = tagValue;
+		}
 
 		#endregion
 

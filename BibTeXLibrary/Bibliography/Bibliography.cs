@@ -47,6 +47,11 @@ namespace BibTeXLibrary
 			}
 		}
 
+		/// <summary>
+		/// The bibliography document object model.
+		/// </summary>
+		public BibliographyDOM DocumentObjectModel { get => _bibliographyDOM; }
+
 		#endregion
 
 		#region Methods

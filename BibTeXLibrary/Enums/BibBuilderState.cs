@@ -13,9 +13,8 @@ namespace BibTeXLibrary
 	/// </summary>
 	public enum BibBuilderState
 	{
-		/// <summary>Create.</summary>
-		[Description("Create")]
-		Create,
+		/// <summary>Set the header.</summary>
+		[Description("Set Header")]
 		SetHeader,
 		SetType,
 		SetKey,
