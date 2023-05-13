@@ -160,11 +160,11 @@ namespace BibTeXLibrary
 		/// the rules.
 		/// </summary>
 		/// <param name="entry">BibEntry to use auto generated key.</param>
-		public void AutoKeyEntry(BibEntry entry)
+		public void AutoGenerateCiteKey(BibEntry entry)
 		{
-			if (!ValidAutoKey(entry))
+			if (!ValidAutoCiteKey(entry))
 			{
-				GenerateUniqueKey(entry);
+				GenerateUniqueCiteKey(entry);
 			}
 		}
 
@@ -172,9 +172,9 @@ namespace BibTeXLibrary
 		/// Checks if the key follows the rules to be a valid auto key.
 		/// </summary>
 		/// <param name="entry">BibEntry to check.</param>
-		private bool ValidAutoKey(BibEntry entry)
+		private bool ValidAutoCiteKey(BibEntry entry)
 		{
-			string keyBase = GenerateKeyBase(entry);
+			string keyBase = GenerateCiteKeyBase(entry);
 
 			// If the key base is longer, it is definitely not valid and will cause an error when getting the sub string below.
 			if (keyBase.Length > entry.Key.Length)
@@ -190,17 +190,21 @@ namespace BibTeXLibrary
 		/// </summary>
 		/// <param name="entry">BibEntry to generate a key for.</param>
 
-		private void GenerateUniqueKey(BibEntry entry)
+		private void GenerateUniqueCiteKey(BibEntry entry)
 		{
-			string key = GenerateKeyBase(entry);
+			string key = GenerateCiteKeyBase(entry);
 
 			// Needs to be last.
-			key += GenerateSuffix(key.ToString());
+			key += GenerateCiteKeySuffix(key.ToString());
 
 			entry.Key = key.ToString();
 		}
 
-		private string GenerateKeyBase(BibEntry entry)
+		/// <summary>
+		/// Generate the base of a cite key (absent the suffix).
+		/// </summary>
+		/// <param name="entry">BibEntry.</param>
+		private string GenerateCiteKeyBase(BibEntry entry)
 		{
 			string prefix = "ref:";
 			StringBuilder key = new StringBuilder(prefix);
@@ -211,7 +215,12 @@ namespace BibTeXLibrary
 			return key.ToString();
 		}
 
-		private string GenerateSuffix(string baseKey)
+		/// <summary>
+		/// Generation a cite key suffix.
+		/// </summary>
+		/// <param name="baseKey">The cite key base.</param>
+		/// <exception cref="IndexOutOfRangeException">Thrown if the algorithm runs out of suffixes to try.</exception>
+		private string GenerateCiteKeySuffix(string baseKey)
 		{
 			foreach (string suffix in GetSuffixGenerator().Get())
 			{
