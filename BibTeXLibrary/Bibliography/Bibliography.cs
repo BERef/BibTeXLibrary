@@ -1,12 +1,11 @@
-﻿using System;
+﻿using DigitalProduction.Strings;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Xml.Serialization;
 using System.Linq;
 using System.Text;
-using static System.Net.WebRequestMethods;
-using DigitalProduction.Strings;
+using System.Xml.Serialization;
 
 namespace BibTeXLibrary
 {
@@ -17,10 +16,7 @@ namespace BibTeXLibrary
 	{
 		#region Fields
 
-		public static string[]					_nameSuffixes					= { "jr", "jr.", "sr", "sr.", "ii", "iii", "iv", "v", @"p\`{e}re", "fils" };
-
-		private List<string>					_header;
-		private BindingList<BibEntry>			_entries						= new BindingList<BibEntry>();
+		private BibliographyDOM					_bibliographyDOM				= new BibliographyDOM();
 
 		#endregion
 
@@ -35,8 +31,8 @@ namespace BibTeXLibrary
 
 		#endregion
 
+		
 		#region Properties
-
 
 		/// <summary>
 		/// BibTeX entries.
@@ -46,13 +42,14 @@ namespace BibTeXLibrary
 		{
 			get
 			{
-				return _entries;
-			}
-			set
-			{
-				_entries = value;
+				return _bibliographyDOM.BibiographyEntries;
 			}
 		}
+
+		/// <summary>
+		/// The bibliography document object model.
+		/// </summary>
+		public BibliographyDOM DocumentObjectModel { get => _bibliographyDOM; }
 
 		#endregion
 
@@ -67,7 +64,7 @@ namespace BibTeXLibrary
 		public void Read(string bibFilePath)
 		{
 			BibParser parser = new BibParser(bibFilePath);
-			GetResults(parser);
+			_bibliographyDOM = parser.GetAllResults();
 		}
 
 		/// <summary>
@@ -78,24 +75,7 @@ namespace BibTeXLibrary
 		public void Read(string bibFilePath, string bibEntryInitializationFile)
 		{
 			BibParser parser = new BibParser(bibFilePath, bibEntryInitializationFile);
-			GetResults(parser);
-		}
-
-		/// <summary>
-		/// Gets the results from the parser.
-		/// </summary>
-		/// <param name="parser">BibParser used to read the file.</param>
-		private void GetResults(BibParser parser)
-		{
-			Tuple<List<string>, List<BibEntry>> results = parser.GetAllResults();
-
-			_header = results.Item1;
-
-			_entries.Clear();
-			foreach (BibEntry bibEntry in results.Item2)
-			{
-				_entries.Add(bibEntry);
-			}
+			_bibliographyDOM = parser.GetAllResults();
 		}
 
 		/// <summary>
@@ -123,13 +103,13 @@ namespace BibTeXLibrary
 
 				// Write the header.  The header is stored as separate lines so when we write it we can use
 				// the expected line ending type (\r\n, \n) used by the writer.
-				foreach (string line in _header)
+				foreach (string line in _bibliographyDOM.Header)
 				{
 					streamWriter.WriteLine(line);
 				}
 
 				// Write each entry with a blank line preceeding it.
-				foreach (BibEntry bibEntry in _entries)
+				foreach (BibEntry bibEntry in _bibliographyDOM.BibiographyEntries)
 				{
 					streamWriter.WriteLine();
 					streamWriter.Write(bibEntry.ToString(writeSettings));
@@ -142,7 +122,7 @@ namespace BibTeXLibrary
 		/// </summary>
 		public void Close()
 		{
-			_entries.Clear();
+			_bibliographyDOM.Dispose();
 		}
 
 		#endregion
@@ -161,11 +141,11 @@ namespace BibTeXLibrary
 		/// the rules.
 		/// </summary>
 		/// <param name="entry">BibEntry to use auto generated key.</param>
-		public void AutoKeyEntry(BibEntry entry)
+		public void AutoGenerateCiteKey(BibEntry entry)
 		{
-			if (!ValidAutoKey(entry))
+			if (!ValidAutoCiteKey(entry))
 			{
-				GenerateUniqueKey(entry);
+				GenerateUniqueCiteKey(entry);
 			}
 		}
 
@@ -173,9 +153,16 @@ namespace BibTeXLibrary
 		/// Checks if the key follows the rules to be a valid auto key.
 		/// </summary>
 		/// <param name="entry">BibEntry to check.</param>
-		private bool ValidAutoKey(BibEntry entry)
+		private bool ValidAutoCiteKey(BibEntry entry)
 		{
-			string keyBase = GenerateKeyBase(entry);
+			string keyBase = GenerateCiteKeyBase(entry);
+
+			// If the key base is longer, it is definitely not valid and will cause an error when getting the sub string below.
+			if (keyBase.Length > entry.Key.Length)
+			{
+				return false;
+			}
+
 			return keyBase == entry.Key.Substring(0, keyBase.Length);
 		}
 
@@ -184,28 +171,37 @@ namespace BibTeXLibrary
 		/// </summary>
 		/// <param name="entry">BibEntry to generate a key for.</param>
 
-		private void GenerateUniqueKey(BibEntry entry)
+		private void GenerateUniqueCiteKey(BibEntry entry)
 		{
-			string key = GenerateKeyBase(entry);
+			string key = GenerateCiteKeyBase(entry);
 
 			// Needs to be last.
-			key += GenerateSuffix(key.ToString());
+			key += GenerateCiteKeySuffix(key.ToString());
 
 			entry.Key = key.ToString();
 		}
 
-		private string GenerateKeyBase(BibEntry entry)
+		/// <summary>
+		/// Generate the base of a cite key (absent the suffix).
+		/// </summary>
+		/// <param name="entry">BibEntry.</param>
+		private string GenerateCiteKeyBase(BibEntry entry)
 		{
 			string prefix = "ref:";
 			StringBuilder key = new StringBuilder(prefix);
 
 			// This is setup to allow no conversion, lower case, upper case, et cetera in the future, but for now just assume lower case.
-			key.Append(GetAuthorsName(entry, "last", StringCase.LowerCase));
+			key.Append(entry.GetFirstAuthorsName(NameFormat.Last, StringCase.LowerCase));
 			key.Append(entry.Year);
 			return key.ToString();
 		}
 
-		private string GenerateSuffix(string baseKey)
+		/// <summary>
+		/// Generation a cite key suffix.
+		/// </summary>
+		/// <param name="baseKey">The cite key base.</param>
+		/// <exception cref="IndexOutOfRangeException">Thrown if the algorithm runs out of suffixes to try.</exception>
+		private string GenerateCiteKeySuffix(string baseKey)
 		{
 			foreach (string suffix in GetSuffixGenerator().Get())
 			{
@@ -230,7 +226,7 @@ namespace BibTeXLibrary
 			// However, this could be confusing or error prone, so (for now anyway) we will do a case insensitive comparison.
 			key = key.ToLower();
 
-			foreach (BibEntry entry in _entries)
+			foreach (BibEntry entry in _bibliographyDOM.BibiographyEntries)
 			{
 				if (entry.Key.ToLower() == key)
 				{
@@ -239,68 +235,6 @@ namespace BibTeXLibrary
 			}
 
 			return false;
-		}
-
-		private string GetAuthorsName(BibEntry entry, string format, StringCase toCase)
-		{
-			// Get the authors and split on the "and" string.  If there are no authors, return a blank string.
-			string[] authors = entry.Author.Split(new string[] { "and" }, StringSplitOptions.RemoveEmptyEntries);
-			if (authors.Length == 0)
-			{
-				return "";
-			}
-
-			string firstAuthorName = "";
-			string result = "";
-
-			// Split the first author on a comma.  Author names can be in the formats of:
-			// William Shakespeare
-			// Shakespeare, William
-			// If it is in the second format, we will reverse it so we have the name always specified in the same manner.
-			// If there is no comma, we should only get 1 result.
-			string[] firstAuthorArray	= authors[0].Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-			if (firstAuthorArray.Length == 1)
-			{
-				// William Shakespeare, nothing required.
-				firstAuthorName = firstAuthorArray[0];
-			}
-			else
-			{
-				// Shakespeare, William, reverse the order.
-				firstAuthorName = firstAuthorArray[1] + " " + firstAuthorArray[0];
-			}
-
-			switch (format)
-			{
-				case "full":
-					result = firstAuthorName;
-					break;
-
-				case "first":
-					result = (firstAuthorName.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))[0];
-					break;
-
-				case "last":
-					// Split the full name into separate words/name.
-					firstAuthorArray = firstAuthorName.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-
-					// We don't want to return "Sr.", "Jr.", et cetera, so work backwards and ignore any of those.
-					// The first word we find that is not in our rejected list, we will treat as the last name.
-					for (int i = firstAuthorArray.Length-1;  i >= 0; i--)
-					{
-						if (!_nameSuffixes.Any(item => item == firstAuthorArray[i]))
-						{
-							result = firstAuthorArray[i];
-							break;
-						}
-					}
-					break;
-
-				default:
-					throw new NotSupportedException("The name format specified is not valid.");
-			}
-
-			return Format.ChangeCase(result, toCase);
 		}
 
 		#endregion

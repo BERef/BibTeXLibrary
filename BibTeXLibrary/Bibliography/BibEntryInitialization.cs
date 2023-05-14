@@ -15,18 +15,6 @@ namespace BibTeXLibrary
 	[XmlRoot("bibentryinitialization")]
 	public class BibEntryInitialization
 	{
-		#region Enumerations
-
-		#endregion
-
-		#region Delegates
-
-		#endregion
-
-		#region Events
-
-		#endregion
-
 		#region Fields
 
 		private SerializableDictionary<string, string>			_typeToTemplateMap			= new SerializableDictionary<string, string>();
@@ -47,30 +35,40 @@ namespace BibTeXLibrary
 
 		#region Properties
 
+		/// <summary>
+		/// Type bibliography type to template map.
+		/// </summary>
 		[XmlElement("typetotemplatemap")]
 		public SerializableDictionary<string, string> TypeToTemplateMap { get => _typeToTemplateMap; set => _typeToTemplateMap = value; }
 
+		/// <summary>
+		/// The templates used to initialize a BibEntry.
+		/// </summary>
 		[XmlElement("templates")]
 		public SerializableDictionary<string, List<string>> Templates { get => _templates; set => _templates = value; }
+
+		public List<string> TypeNames { get => (from string item in _typeToTemplateMap.Keys select item).ToList(); }
+
+		public List<string> TemplateNames { get => (from string item in _templates.Keys select item).ToList(); }
 
 		#endregion
 
 		#region Methods
 
 		/// <summary>
-		/// Gets the default set of (ordered) tags.
+		/// Gets the default set of (ordered) tags for a type of bibliography entry.
 		/// </summary>
 		/// <param name="bibEntry">BibTex entry type.</param>
-		public List<string> GetTags(BibEntry bibEntry)
+		public List<string> GetDefaultTags(BibEntry bibEntry)
 		{
-			return GetTags(bibEntry.Type);
+			return GetDefaultTags(bibEntry.Type);
 		}
 
 		/// <summary>
-		/// Gets the default set of (ordered) tags.
+		/// Gets the default set of (ordered) tags for a type of bibliography entry.
 		/// </summary>
 		/// <param name="type">BibTex entry type.</param>
-		public List<string> GetTags(string type)
+		public List<string> GetDefaultTags(string type)
 		{
 			type = type.ToLower();
 

@@ -10,10 +10,11 @@ namespace UnitTest
         [TestMethod]
         public void TestConstructor()
         {
-            var e = new UnrecognizableCharacterException(1, 10, '?');
-            Assert.AreEqual(1,  e.LineNo);
-            Assert.AreEqual(10, e.ColNo);
-            Assert.AreEqual("Line 1, Col 10. Unrecognizable character: '?'.", e.Message);
-        }
-    }
-}
+            var exception = new UnrecognizableCharacterException(1, 10, '?');
+            Assert.AreEqual(1,  exception.LineNumber);
+            Assert.AreEqual(10, exception.ColumnNumber);
+            Assert.AreEqual("An unexpected character was found.\nCharacter: '?'.\nAt line 2, column 11.", exception.Message);
+		}
+
+	}// End class.
+} // End namespace.
