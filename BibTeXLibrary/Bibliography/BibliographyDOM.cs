@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 
 namespace BibTeXLibrary
@@ -152,7 +153,17 @@ namespace BibTeXLibrary
 
 		public int FindInsertIndex(BibEntry entry, SortBy sortBy)
 		{
-			return BinarySearch<BibEntry>(_bibEntries, entry, new CompareByFirstAuthorLastName(), false);
+			switch (sortBy)
+			{
+				case SortBy.FirstAuthorLastName:
+					return BinarySearch<BibEntry>(_bibEntries, entry, new CompareByFirstAuthorLastName(), false);
+
+				case SortBy.Key:
+					return BinarySearch<BibEntry>(_bibEntries, entry, new CompareByCiteKey(), false);
+
+				default:
+					throw new ArgumentException("The specified method of sorting is not valid.");
+			}
 		}
 
 		/// <summary>
@@ -204,21 +215,5 @@ namespace BibTeXLibrary
 		#endregion
 
 	} // End class.
-
-	public class CompareByFirstAuthorLastName : IComparer<BibEntry>
-	{
-		public int Compare(BibEntry entry1, BibEntry entry2)
-		{
-			if (entry1 == null && entry2 == null) return 0;
-			if (entry1 == null) return -1;
-			if (entry2 == null) return 1;
-			return GetComparisonName(entry1).CompareTo(GetComparisonName(entry2));
-		}
-
-		private string GetComparisonName(BibEntry entry)
-		{
-			return entry.GetFirstAuthorsName(NameFormat.Last, StringCase.LowerCase);
-		}
-	}	
 
 } // End namespace.
