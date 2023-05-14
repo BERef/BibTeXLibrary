@@ -50,12 +50,22 @@ namespace BibTeXLibrary
 		/// <summary>
 		/// Get the bibliography entries.
 		/// </summary>
-		public BindingList<BibEntry> BibiographyEntries { get => _bibEntries; }
+		public BindingList<BibEntry> BibliographyEntries { get => _bibEntries; }
+
+		/// <summary>
+		/// The number of bibliography entries.
+		/// </summary>
+		public int NumberOfBibliographyEntries { get => _bibEntries.Count; }
 
 		/// <summary>
 		/// String constants.
 		/// </summary>
 		public List<StringConstantPart> StringConstants { get => _strings; }
+
+		/// <summary>
+		/// The number of string constants.
+		/// </summary>
+		public int NumberOfStringConstants { get => _strings.Count; }
 
 		#endregion
 
@@ -126,7 +136,75 @@ namespace BibTeXLibrary
 			}
 		}
 
+		public int FindInsertIndex(BibEntry entry, SortBy sortBy)
+		{
+			return BinarySearch<BibEntry>(_bibEntries, entry, new CompareByFirstAuthorLastName());
+		}
+
+		/// <summary>
+		/// A binarySearch.
+		/// </summary>
+		/// <typeparam name="T">Template type.</typeparam>
+		/// <param name="list">The list of items to search.</param>
+		/// <param name="item">The item to search for.</param>
+		/// <param name="comparer">Comparison function.</param>
+		/// <param name="itemMustExist">If the item must exist, an error is thrown if the item is not found.  Otherwise, the position where the item would be found is returned.</param>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
+		public int BinarySearch<T>(BindingList<T> list, T item, IComparer<T> comparer, bool itemMustExist = true)
+		{
+			int min = 0;
+			int max = list.Count - 1;
+
+			while (min <= max)
+			{
+				int mid     = (min + max) / 2;
+				int result  = comparer.Compare(item, list[mid]);
+
+				if (result == 0)
+				{
+					return ++mid;
+				}
+				else if (result < 0)
+				{
+					max = mid - 1;
+				}
+				else
+				{
+					min = mid + 1;
+				}
+			}
+
+			if (itemMustExist)
+			{
+				throw new Exception("The item");
+			}
+
+			return min;
+		}
+
+		private string GetComparisonName(BibEntry entry)
+		{
+			return entry.GetFirstAuthorsName(NameFormat.Last, StringCase.LowerCase);
+		}
+
 		#endregion
 
 	} // End class.
+
+	public class CompareByFirstAuthorLastName : IComparer<BibEntry>
+	{
+		public int Compare(BibEntry entry1, BibEntry entry2)
+		{
+			if (entry1 == null && entry2 == null) return 0;
+			if (entry1 == null) return -1;
+			if (entry2 == null) return 1;
+			return GetComparisonName(entry1).CompareTo(GetComparisonName(entry2));
+		}
+
+		private string GetComparisonName(BibEntry entry)
+		{
+			return entry.GetFirstAuthorsName(NameFormat.Last, StringCase.LowerCase);
+		}
+	}	
+
 } // End namespace.
