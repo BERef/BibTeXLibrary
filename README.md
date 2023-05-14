@@ -1,16 +1,8 @@
 # BibTeXLibrary
 
-[![Build Status](https://dev.azure.com/blueveyoud/BibTeXLibrary/_apis/build/status/BERef.BibTeXLibrary?branchName=master)](https://dev.azure.com/blueveyoud/BibTeXLibrary/_build/latest?definitionId=2&branchName=master)
-![Nuget](https://img.shields.io/nuget/v/BERef.BibTeXTools.svg)
-
 A utility library for BibTeX written in C#.
 
-## Installation
-We recommand install this package via NuGet.
-```
-Install-Package BERef.BibTeXTools
-```
-For more information, please ref to [NuGet Gallery | BERef.BibTeXTools](https://www.nuget.org/packages/BERef.BibTeXTools/)
+This library is based on the BERef/BibTeXLibrary.  It contains contributions from AizazZaidee.  The library has been heavily modified and added to so it can be used in an application for maintaining a BibTeX file.
 
 ## Usage at a glance
 
