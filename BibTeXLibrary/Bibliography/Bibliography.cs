@@ -42,7 +42,7 @@ namespace BibTeXLibrary
 		{
 			get
 			{
-				return _bibliographyDOM.BibiographyEntries;
+				return _bibliographyDOM.BibliographyEntries;
 			}
 		}
 
@@ -109,7 +109,7 @@ namespace BibTeXLibrary
 				}
 
 				// Write each entry with a blank line preceeding it.
-				foreach (BibEntry bibEntry in _bibliographyDOM.BibiographyEntries)
+				foreach (BibEntry bibEntry in _bibliographyDOM.BibliographyEntries)
 				{
 					streamWriter.WriteLine();
 					streamWriter.Write(bibEntry.ToString(writeSettings));
@@ -226,7 +226,7 @@ namespace BibTeXLibrary
 			// However, this could be confusing or error prone, so (for now anyway) we will do a case insensitive comparison.
 			key = key.ToLower();
 
-			foreach (BibEntry entry in _bibliographyDOM.BibiographyEntries)
+			foreach (BibEntry entry in _bibliographyDOM.BibliographyEntries)
 			{
 				if (entry.Key.ToLower() == key)
 				{
