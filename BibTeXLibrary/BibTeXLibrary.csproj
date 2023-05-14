@@ -50,6 +50,8 @@
     <Compile Include="Bibliography\BibEntryInitialization.cs" />
     <Compile Include="Bibliography\BibliographyDOM.cs" />
     <Compile Include="Bibliography\BibliographyPart.cs" />
+    <Compile Include="Bibliography Parts\CompareByFirstAuthorLastName.cs" />
+    <Compile Include="Bibliography Parts\CompareByCiteKey.cs" />
     <Compile Include="Enums\NameFormat.cs" />
     <Compile Include="Enums\SortBy.cs" />
     <Compile Include="Bibliography\StringConstantPart.cs" />
@@ -73,6 +75,9 @@
       <Project>{078ea7c0-7ee8-4d51-9421-8eedc779acbb}</Project>
       <Name>Digital Production</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="NewFolder1\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
