@@ -1,10 +1,8 @@
-﻿using System;
+﻿using DigitalProduction.Strings;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 namespace BibTeXLibrary
 {
@@ -61,7 +59,7 @@ namespace BibTeXLibrary
 
 		#endregion
 
-		#region Methods
+		#region Add Methods
 
 		/// <summary>
 		/// Add a bibliography entry or a string.
@@ -86,6 +84,46 @@ namespace BibTeXLibrary
 		public void AddHeaderLine(string line)
 		{
 			_header.Add(line);
+		}
+
+		#endregion
+
+		#region Organization Methods
+
+		/// <summary>
+		/// Sort the bibliography entries.
+		/// </summary>
+		/// <param name="sortBy">Method to sort the bibliography entries by.</param>
+		/// <exception cref="ArgumentException">The SortBy method is not valid.</exception>
+		public void SortBibEntries(SortBy sortBy)
+		{
+			// The copy constructor doesn't work, it points to the _bibEntry list and when that list is cleared, both are cleared (and the enumerators).
+			BindingList<BibEntry> copy = new BindingList<BibEntry>();
+			foreach (BibEntry entry in _bibEntries)
+			{
+				copy.Add(entry);
+			}
+
+			IOrderedEnumerable<BibEntry> sorted;
+			switch (sortBy)
+			{
+				case SortBy.FirstAuthorLastName:
+					sorted = copy.OrderBy(entry => entry.GetFirstAuthorsName(NameFormat.Last, StringCase.LowerCase));
+					break;
+
+				case SortBy.Key:
+					sorted = copy.OrderBy(entry => entry.Key);
+					break;
+
+				default:
+					throw new ArgumentException("The specified method of sorting is not valid.");
+			}
+
+			_bibEntries.Clear();
+			foreach (BibEntry entry in sorted)
+			{
+				_bibEntries.Add(entry);
+			}
 		}
 
 		#endregion

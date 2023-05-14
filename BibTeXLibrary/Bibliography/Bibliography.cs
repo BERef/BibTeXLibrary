@@ -16,7 +16,6 @@ namespace BibTeXLibrary
 	{
 		#region Fields
 
-		public static string[]					_nameSuffixes					= { "jr", "jr.", "sr", "sr.", "ii", "iii", "iv", "v", @"p\`{e}re", "fils" };
 		private BibliographyDOM					_bibliographyDOM				= new BibliographyDOM();
 
 		#endregion
@@ -32,8 +31,8 @@ namespace BibTeXLibrary
 
 		#endregion
 
+		
 		#region Properties
-
 
 		/// <summary>
 		/// BibTeX entries.
@@ -192,7 +191,7 @@ namespace BibTeXLibrary
 			StringBuilder key = new StringBuilder(prefix);
 
 			// This is setup to allow no conversion, lower case, upper case, et cetera in the future, but for now just assume lower case.
-			key.Append(GetAuthorsName(entry, "last", StringCase.LowerCase));
+			key.Append(entry.GetFirstAuthorsName(NameFormat.Last, StringCase.LowerCase));
 			key.Append(entry.Year);
 			return key.ToString();
 		}
@@ -236,68 +235,6 @@ namespace BibTeXLibrary
 			}
 
 			return false;
-		}
-
-		private string GetAuthorsName(BibEntry entry, string format, StringCase toCase)
-		{
-			// Get the authors and split on the "and" string.  If there are no authors, return a blank string.
-			string[] authors = entry.Author.Split(new string[] { "and" }, StringSplitOptions.RemoveEmptyEntries);
-			if (authors.Length == 0)
-			{
-				return "";
-			}
-
-			string firstAuthorName = "";
-			string result = "";
-
-			// Split the first author on a comma.  Author names can be in the formats of:
-			// William Shakespeare
-			// Shakespeare, William
-			// If it is in the second format, we will reverse it so we have the name always specified in the same manner.
-			// If there is no comma, we should only get 1 result.
-			string[] firstAuthorArray	= authors[0].Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-			if (firstAuthorArray.Length == 1)
-			{
-				// William Shakespeare, nothing required.
-				firstAuthorName = firstAuthorArray[0];
-			}
-			else
-			{
-				// Shakespeare, William, reverse the order.
-				firstAuthorName = firstAuthorArray[1] + " " + firstAuthorArray[0];
-			}
-
-			switch (format)
-			{
-				case "full":
-					result = firstAuthorName;
-					break;
-
-				case "first":
-					result = (firstAuthorName.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))[0];
-					break;
-
-				case "last":
-					// Split the full name into separate words/name.
-					firstAuthorArray = firstAuthorName.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-
-					// We don't want to return "Sr.", "Jr.", et cetera, so work backwards and ignore any of those.
-					// The first word we find that is not in our rejected list, we will treat as the last name.
-					for (int i = firstAuthorArray.Length-1;  i >= 0; i--)
-					{
-						if (!_nameSuffixes.Any(item => item == firstAuthorArray[i]))
-						{
-							result = firstAuthorArray[i];
-							break;
-						}
-					}
-					break;
-
-				default:
-					throw new NotSupportedException("The name format specified is not valid.");
-			}
-
-			return Format.ChangeCase(result, toCase);
 		}
 
 		#endregion

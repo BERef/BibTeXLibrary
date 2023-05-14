@@ -50,6 +50,8 @@
     <Compile Include="Bibliography\BibEntryInitialization.cs" />
     <Compile Include="Bibliography\BibliographyDOM.cs" />
     <Compile Include="Bibliography\BibliographyPart.cs" />
+    <Compile Include="Enums\NameFormat.cs" />
+    <Compile Include="Enums\SortBy.cs" />
     <Compile Include="Bibliography\StringConstantPart.cs" />
     <Compile Include="Bibliography\TagValue.cs" />
     <Compile Include="Enums\BibBuilderState.cs" />

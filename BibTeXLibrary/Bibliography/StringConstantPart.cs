@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.Collections;
 using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 namespace BibTeXLibrary
 {
 	/// <summary>
-	/// 
+	/// A bibliography string constant.
 	/// </summary>
 	public class StringConstantPart : BibliographyPart
 	{
