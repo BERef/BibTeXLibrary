@@ -69,6 +69,20 @@ namespace BibTeXLibrary
 
 		#endregion
 
+		#region General Methods
+
+		/// <summary>
+		/// Clear all the data.
+		/// </summary>
+		public void Clear()
+		{
+			_header.Clear();
+			_bibEntries.Clear();
+			_strings.Clear();
+		}
+
+		#endregion
+
 		#region Add Methods
 
 		/// <summary>

@@ -238,24 +238,23 @@ namespace BibTeXLibrary
 
 		#endregion
 
-		#region Public Methods
+		#region Parse Methods
 
 		/// <summary>
 		/// Get all results from the Parser.
 		/// </summary>
-		public BibliographyDOM GetAllResults()
-        {
-			return Parse();
-        }
-
-		#endregion
-
-		#region Private Methods
-
-		private BibliographyDOM Parse()
-        {
+		public BibliographyDOM Parse()
+		{ 
 			BibliographyDOM bibliographyDOM = new BibliographyDOM();
+			Parse(bibliographyDOM);
+			return bibliographyDOM;
+		}
 
+		/// <summary>
+		/// Get all results from the Parser.
+		/// </summary>
+		public BibliographyDOM Parse(BibliographyDOM bibliographyDOM)
+        {
 			try
 			{
 				ParserState				curState			= ParserState.Begin;

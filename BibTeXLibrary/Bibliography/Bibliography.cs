@@ -64,7 +64,7 @@ namespace BibTeXLibrary
 		public void Read(string bibFilePath)
 		{
 			BibParser parser = new BibParser(bibFilePath);
-			_bibliographyDOM = parser.GetAllResults();
+			_bibliographyDOM = parser.Parse();
 		}
 
 		/// <summary>
@@ -74,8 +74,9 @@ namespace BibTeXLibrary
 		/// <param name="bibEntryInitializationFile">Full path to the bibliography entry initialization file.</param>
 		public void Read(string bibFilePath, string bibEntryInitializationFile)
 		{
+			_bibliographyDOM.Clear();
 			BibParser parser = new BibParser(bibFilePath, bibEntryInitializationFile);
-			_bibliographyDOM = parser.GetAllResults();
+			parser.Parse(_bibliographyDOM);
 		}
 
 		/// <summary>
