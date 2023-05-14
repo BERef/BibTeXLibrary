@@ -138,7 +138,7 @@ namespace BibTeXLibrary
 
 		public int FindInsertIndex(BibEntry entry, SortBy sortBy)
 		{
-			return BinarySearch<BibEntry>(_bibEntries, entry, new CompareByFirstAuthorLastName());
+			return BinarySearch<BibEntry>(_bibEntries, entry, new CompareByFirstAuthorLastName(), false);
 		}
 
 		/// <summary>
