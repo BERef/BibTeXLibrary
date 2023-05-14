@@ -136,24 +136,10 @@ namespace BibTeXLibrary
 		}
 
 		/// <summary>
-		/// Determines if the BibEntry's key follows the rules to be a valid auto key.  If the key is a
-		/// valid auto generated key, nothing is done, otherwise an unique key is generated according to
-		/// the rules.
-		/// </summary>
-		/// <param name="entry">BibEntry to use auto generated key.</param>
-		public void AutoGenerateCiteKey(BibEntry entry)
-		{
-			if (!ValidAutoCiteKey(entry))
-			{
-				GenerateUniqueCiteKey(entry);
-			}
-		}
-
-		/// <summary>
 		/// Checks if the key follows the rules to be a valid auto key.
 		/// </summary>
 		/// <param name="entry">BibEntry to check.</param>
-		private bool ValidAutoCiteKey(BibEntry entry)
+		public bool HasValidAutoCiteKey(BibEntry entry)
 		{
 			string keyBase = GenerateCiteKeyBase(entry);
 
@@ -171,7 +157,7 @@ namespace BibTeXLibrary
 		/// </summary>
 		/// <param name="entry">BibEntry to generate a key for.</param>
 
-		private void GenerateUniqueCiteKey(BibEntry entry)
+		public void GenerateUniqueCiteKey(BibEntry entry)
 		{
 			string key = GenerateCiteKeyBase(entry);
 
